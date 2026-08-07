@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>ctags-lang-odin &#8212; Universal Ctags 0.3.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../_static/classic.css?v=2bf1fcf8" />
+    
+    <script src="../_static/documentation_options.js?v=e259d695"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="ctags-lang-powershell" href="ctags-lang-powershell.7.html" />
+    <link rel="prev" title="ctags-lang-meson" href="ctags-lang-meson.7.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="Related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="ctags-lang-powershell.7.html" title="ctags-lang-powershell"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="ctags-lang-meson.7.html" title="ctags-lang-meson"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Universal Ctags 0.3.0 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../man-pages.html" accesskey="U">Man pages</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">ctags-lang-odin</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="ctags-lang-odin">
+<span id="ctags-lang-odin-7"></span><h1>ctags-lang-odin<a class="headerlink" href="#ctags-lang-odin" title="Link to this heading">¶</a></h1>
+<p>Notes about tagging Odin source code with Universal Ctags</p>
+<dl class="field-list simple">
+<dt class="field-odd">Version<span class="colon">:</span></dt>
+<dd class="field-odd"><p>6.2.0</p>
+</dd>
+<dt class="field-even">Manual group<span class="colon">:</span></dt>
+<dd class="field-even"><p>Universal Ctags</p>
+</dd>
+<dt class="field-odd">Manual section<span class="colon">:</span></dt>
+<dd class="field-odd"><p>7</p>
+</dd>
+</dl>
+<section id="synopsis">
+<h2>SYNOPSIS<a class="headerlink" href="#synopsis" title="Link to this heading">¶</a></h2>
+<div class="line-block">
+<div class="line"><strong>ctags</strong> … --languages=+Odin …</div>
+<div class="line"><strong>ctags</strong> … --language-force=Odin …</div>
+<div class="line"><strong>ctags</strong> … --map-Odin=+.odin …</div>
+</div>
+</section>
+<section id="description">
+<h2>DESCRIPTION<a class="headerlink" href="#description" title="Link to this heading">¶</a></h2>
+<p>This man page gathers notes about tagging Odin source code
+with Universal Ctags.</p>
+<p>The Odin parser tags packages, procedures, constants, variables,
+structs, enums, unions, struct members, enum values, type aliases,
+and foreign imports.</p>
+</section>
+<section id="distinguishing-types-from-constants">
+<h2>Distinguishing types from constants<a class="headerlink" href="#distinguishing-types-from-constants" title="Link to this heading">¶</a></h2>
+<p>In Odin, the syntax for a type alias and a constant binding are
+identical:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">My_Type</span> <span class="p">::</span> <span class="n">Other_Type</span>
+<span class="n">MY_CONST</span> <span class="p">::</span> <span class="n">OTHER_CONST</span>
+</pre></div>
+</div>
+<p>When the right-hand side of a <code class="docutils literal notranslate"><span class="pre">::</span></code> binding is a plain identifier,
+the parser cannot syntactically determine whether it is a type alias
+or a constant. In this case, the parser uses a naming-convention
+heuristic: if the name on the left-hand side contains any lowercase
+letter, it is tagged as a <code class="docutils literal notranslate"><span class="pre">type</span></code> (kind <code class="docutils literal notranslate"><span class="pre">t</span></code>); if the name is
+entirely uppercase (and underscores/digits), it is tagged as a
+<code class="docutils literal notranslate"><span class="pre">const</span></code> (kind <code class="docutils literal notranslate"><span class="pre">c</span></code>).</p>
+<p>This follows the strong Odin convention that type names use
+<code class="docutils literal notranslate"><span class="pre">Ada_Case</span></code> and constants use <code class="docutils literal notranslate"><span class="pre">SCREAMING_SNAKE_CASE</span></code>.</p>
+<p>“input.odin”</p>
+<div class="highlight-Odin notranslate"><div class="highlight"><pre><span></span><span class="nc">package</span><span class="w"> </span><span class="nc">example</span>
+
+<span class="err">H</span><span class="nc">andle</span><span class="w"> </span><span class="err">::</span><span class="w"> </span><span class="nc">distinct</span><span class="w"> </span><span class="nc">rawptr</span>
+<span class="err">V</span><span class="nc">ector2</span><span class="w"> </span><span class="err">::</span><span class="w"> </span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="nc">f32</span>
+<span class="err">C</span><span class="nc">allback</span><span class="w"> </span><span class="err">::</span><span class="w"> </span><span class="nc">proc</span><span class="p">(</span><span class="nc">x: int</span><span class="p">)</span><span class="w"> </span><span class="err">-</span><span class="p">&gt;</span><span class="w"> </span><span class="nc">bool</span>
+<span class="err">M</span><span class="nc">y_Alias</span><span class="w"> </span><span class="err">::</span><span class="w"> </span><span class="err">S</span><span class="nc">ome_Type</span>
+<span class="err">MAX</span><span class="nc">_SIZE</span><span class="w"> </span><span class="err">::</span><span class="w"> </span><span class="err">SOME</span><span class="nc">_VALUE</span>
+</pre></div>
+</div>
+<p>“output.tags”
+with “--options=NONE --sort=no --fields=+K -o - input.odin”</p>
+<div class="highlight-tags notranslate"><div class="highlight"><pre><span></span>example input.odin      /^package example$/;&quot;   package
+Handle  input.odin      /^Handle :: distinct rawptr$/;&quot; type    package:example
+Vector2 input.odin      /^Vector2 :: [2]f32$/;&quot; type    package:example
+Callback        input.odin      /^Callback :: proc(x: int) -&gt; bool$/;&quot;  type    package:example
+My_Alias        input.odin      /^My_Alias :: Some_Type$/;&quot;     type    package:example
+MAX_SIZE        input.odin      /^MAX_SIZE :: SOME_VALUE$/;&quot;    const   package:example
+</pre></div>
+</div>
+<p>Note that when the right-hand side is a keyword such as <code class="docutils literal notranslate"><span class="pre">struct</span></code>,
+<code class="docutils literal notranslate"><span class="pre">enum</span></code>, <code class="docutils literal notranslate"><span class="pre">union</span></code>, <code class="docutils literal notranslate"><span class="pre">distinct</span></code>, <code class="docutils literal notranslate"><span class="pre">proc</span></code>, <code class="docutils literal notranslate"><span class="pre">map</span></code>, or a syntactic
+form such as <code class="docutils literal notranslate"><span class="pre">^Type</span></code>, <code class="docutils literal notranslate"><span class="pre">[N]Type</span></code>, or <code class="docutils literal notranslate"><span class="pre">#type</span></code>, the parser
+identifies the kind unambiguously without relying on the heuristic.</p>
+<p>The heuristic will misclassify names that break the convention, such
+as an all-uppercase type alias (<code class="docutils literal notranslate"><span class="pre">HANDLE</span> <span class="pre">::</span> <span class="pre">Some_Type</span></code> would be
+tagged as <code class="docutils literal notranslate"><span class="pre">const</span></code>) or a lowercase-containing constant
+(<code class="docutils literal notranslate"><span class="pre">kMaxSize</span> <span class="pre">::</span> <span class="pre">SOME_VALUE</span></code> would be tagged as <code class="docutils literal notranslate"><span class="pre">type</span></code>).
+In practice, these cases are rare in idiomatic Odin code.</p>
+</section>
+<section id="foreign-blocks">
+<h2>Foreign blocks<a class="headerlink" href="#foreign-blocks" title="Link to this heading">¶</a></h2>
+<p>The parser extracts procedure and variable declarations from
+<code class="docutils literal notranslate"><span class="pre">foreign</span></code> blocks.</p>
+<p>“input.odin”</p>
+<div class="highlight-Odin notranslate"><div class="highlight"><pre><span></span><span class="nc">package</span><span class="w"> </span><span class="nc">ffi</span>
+
+<span class="nc">foreign</span><span class="w"> </span><span class="nc">import</span><span class="w"> </span><span class="nc">libc</span><span class="w"> </span><span class="s">&quot;system:libc.so&quot;</span>
+
+<span class="nc">foreign</span><span class="w"> </span><span class="nc">libc</span><span class="w"> </span><span class="err">{</span>
+<span class="w">    </span><span class="nc">puts</span><span class="w"> </span><span class="err">::</span><span class="w"> </span><span class="nc">proc</span><span class="w"> </span><span class="s">&quot;c&quot;</span><span class="w"> </span><span class="p">(</span><span class="nc">s: cstring</span><span class="p">)</span><span class="w"> </span><span class="err">-</span><span class="p">&gt;</span><span class="w"> </span><span class="nc">i32</span><span class="w"> </span><span class="c">---</span>
+<span class="w">    </span><span class="l">errno:</span><span class="p"> </span><span class="nc">i32</span>
+<span class="err">}</span>
+</pre></div>
+</div>
+<p>“output.tags”
+with “--options=NONE --sort=no --fields=+K -o - input.odin”</p>
+<div class="highlight-tags notranslate"><div class="highlight"><pre><span></span>ffi     input.odin      /^package ffi$/;&quot;       package
+libc    input.odin      /^foreign import libc &quot;system:libc.so&quot;$/;&quot;      foreign package:ffi
+puts    input.odin      /^    puts :: proc &quot;c&quot; (s: cstring) -&gt; i32 ---$/;&quot;      proc    package:ffi
+errno   input.odin      /^    errno: i32$/;&quot;    var     package:ffi
+</pre></div>
+</div>
+</section>
+<section id="see-also">
+<h2>SEE ALSO<a class="headerlink" href="#see-also" title="Link to this heading">¶</a></h2>
+<p><a class="reference internal" href="ctags.1.html#ctags-1"><span class="std std-ref">ctags(1)</span></a>, <a class="reference internal" href="ctags-client-tools.7.html#ctags-client-tools-7"><span class="std std-ref">ctags-client-tools(7)</span></a></p>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+  <div>
+    <h3><a href="../index.html">Table of Contents</a></h3>
+    <ul>
+<li><a class="reference internal" href="#">ctags-lang-odin</a><ul>
+<li><a class="reference internal" href="#synopsis">SYNOPSIS</a></li>
+<li><a class="reference internal" href="#description">DESCRIPTION</a></li>
+<li><a class="reference internal" href="#distinguishing-types-from-constants">Distinguishing types from constants</a></li>
+<li><a class="reference internal" href="#foreign-blocks">Foreign blocks</a></li>
+<li><a class="reference internal" href="#see-also">SEE ALSO</a></li>
+</ul>
+</li>
+</ul>
+
+  </div>
+  <div>
+    <h4>Previous topic</h4>
+    <p class="topless"><a href="ctags-lang-meson.7.html"
+                          title="previous chapter">ctags-lang-meson</a></p>
+  </div>
+  <div>
+    <h4>Next topic</h4>
+    <p class="topless"><a href="ctags-lang-powershell.7.html"
+                          title="next chapter">ctags-lang-powershell</a></p>
+  </div>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="Related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="ctags-lang-powershell.7.html" title="ctags-lang-powershell"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="ctags-lang-meson.7.html" title="ctags-lang-meson"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Universal Ctags 0.3.0 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../man-pages.html" >Man pages</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">ctags-lang-odin</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+    &#169; Copyright 2015-2022, Universal Ctags Team.
+      Last updated on 05 Jul 2026.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    </div>
+  </body>
+</html>

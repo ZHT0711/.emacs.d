@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>ctags-lang-make &#8212; Universal Ctags 0.3.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../_static/classic.css?v=2bf1fcf8" />
+    
+    <script src="../_static/documentation_options.js?v=e259d695"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="ctags-lang-markdown" href="ctags-lang-markdown.7.html" />
+    <link rel="prev" title="ctags-lang-lisp" href="ctags-lang-lisp.7.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="Related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="ctags-lang-markdown.7.html" title="ctags-lang-markdown"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="ctags-lang-lisp.7.html" title="ctags-lang-lisp"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Universal Ctags 0.3.0 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../man-pages.html" accesskey="U">Man pages</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">ctags-lang-make</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="ctags-lang-make">
+<span id="ctags-lang-make-7"></span><h1>ctags-lang-make<a class="headerlink" href="#ctags-lang-make" title="Link to this heading">¶</a></h1>
+<p>Random notes about tagging Make source code with Universal Ctags</p>
+<dl class="field-list simple">
+<dt class="field-odd">Version<span class="colon">:</span></dt>
+<dd class="field-odd"><p>6.2.0</p>
+</dd>
+<dt class="field-even">Manual group<span class="colon">:</span></dt>
+<dd class="field-even"><p>Universal Ctags</p>
+</dd>
+<dt class="field-odd">Manual section<span class="colon">:</span></dt>
+<dd class="field-odd"><p>7</p>
+</dd>
+</dl>
+<section id="synopsis">
+<h2>SYNOPSIS<a class="headerlink" href="#synopsis" title="Link to this heading">¶</a></h2>
+<div class="line-block">
+<div class="line"><strong>ctags</strong> … --languages=+Make …</div>
+<div class="line"><strong>ctags</strong> … --language-force=Make …</div>
+<div class="line"><strong>ctags</strong> … --map-Make=+([Mm]akefile) --map-Make=+(GNUmakefile) …</div>
+<div class="line"><strong>ctags</strong> … --map-Make=+.mak --map-Make=+.mk …</div>
+</div>
+</section>
+<section id="description">
+<h2>DESCRIPTION<a class="headerlink" href="#description" title="Link to this heading">¶</a></h2>
+<p>This parser extracts macro and target definitions. It also extracts included files as references.</p>
+<section id="examples">
+<h3>Examples<a class="headerlink" href="#examples" title="Link to this heading">¶</a></h3>
+<p>“input.mak”</p>
+<div class="highlight-Makefile notranslate"><div class="highlight"><pre><span></span><span class="cp">-include base.mak</span>
+
+<span class="nv">SRC</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>hello.c
+
+<span class="nf">all</span><span class="o">:</span><span class="w"> </span><span class="n">hello</span>
+<span class="nf">hello</span><span class="o">:</span><span class="w"> </span><span class="n">hello</span>.<span class="n">o</span>
+<span class="nf">hello.o</span><span class="o">:</span><span class="w"> </span><span class="n">hello</span>.<span class="n">c</span>
+<span class="k">$(</span><span class="nv">CC</span><span class="k">)</span><span class="w"> </span><span class="err">-c</span><span class="w"> </span><span class="k">$(</span><span class="nv">CFLAGS</span><span class="k">)</span><span class="w"> </span><span class="k">$(</span><span class="nv">CPPFLAGS</span><span class="k">)</span><span class="w"> </span><span class="k">$&lt;</span>
+</pre></div>
+</div>
+<p>“output.tags”
+with “--options=NONE --extras=+r --fields=+KlrE -o - input.mak”</p>
+<div class="highlight-tags notranslate"><div class="highlight"><pre><span></span>SRC  input.mak       /^SRC = hello.c$/;&quot;     macro   language:Make   roles:def
+all  input.mak       /^all: hello$/;&quot;        target  language:Make   roles:def
+base.mak     input.mak       /^-include base.mak$/;&quot; makefile        language:Make   roles:optional  extras:reference
+hello        input.mak       /^hello: hello.o$/;&quot;    target  language:Make   roles:def
+hello.o      input.mak       /^hello.o: hello.c$/;&quot;  target  language:Make   roles:def
+</pre></div>
+</div>
+</section>
+</section>
+<section id="extracting-cpp-macro-defintions-defined-with-dfoo">
+<h2>EXTRACTING CPP MACRO DEFINTIONS DEFINED WITH -DFOO<a class="headerlink" href="#extracting-cpp-macro-defintions-defined-with-dfoo" title="Link to this heading">¶</a></h2>
+<p>With <code class="docutils literal notranslate"><span class="pre">-D</span></code> option in a C compiler like gcc, a programmer can define a
+macro outside C source files. The options appears on a Makefile
+frequently. For an example:</p>
+<div class="highlight-Makefile notranslate"><div class="highlight"><pre><span></span><span class="nv">CPPFLAGS</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>-DDEBUG
+</pre></div>
+</div>
+<p>The Make parser has heuristics <a class="reference internal" href="#dinmake" id="id1"><span>[DINMAKE]</span></a> for extracting the macros defined with
+the option. With enabling <code class="docutils literal notranslate"><span class="pre">CppDef</span></code> extra, you can turn on the heuristics.</p>
+<section id="id2">
+<h3>Examples<a class="headerlink" href="#id2" title="Link to this heading">¶</a></h3>
+<p>“input.mak”</p>
+<div class="highlight-Makefile notranslate"><div class="highlight"><pre><span></span><span class="cp">-include base.mak</span>
+
+<span class="nv">CFLAGS</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>-g<span class="w"> </span>-O2
+<span class="nv">CPPFLAGS</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>-DOUTPUT<span class="o">=</span>stdout
+<span class="nv">SRC</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>hello.c
+
+<span class="nf">all</span><span class="o">:</span><span class="w"> </span><span class="n">hello</span>
+<span class="nf">hello</span><span class="o">:</span><span class="w"> </span><span class="n">hello</span>.<span class="n">o</span>
+<span class="nf">hello.o</span><span class="o">:</span><span class="w"> </span><span class="n">hello</span>.<span class="n">c</span>
+<span class="k">$(</span><span class="nv">CC</span><span class="k">)</span><span class="w"> </span><span class="err">-c</span><span class="w"> </span><span class="k">$(</span><span class="nv">CFLAGS</span><span class="k">)</span><span class="w"> </span><span class="k">$(</span><span class="nv">CPPFLAGS</span><span class="k">)</span><span class="w"> </span><span class="k">$&lt;</span>
+</pre></div>
+</div>
+<p>“output.tags”
+with “--options=NONE --extras-Make=+{CppDef} --fields=+KlE -o - input.mak”</p>
+<div class="highlight-tags notranslate"><div class="highlight"><pre><span></span>CFLAGS       input.mak       /^CFLAGS = -g -O2$/;&quot;   macro   language:Make
+CPPFLAGS     input.mak       /^CPPFLAGS = -DOUTPUT=stdout$/;&quot;        macro   language:Make
+OUTPUT       input.mak       /^CPPFLAGS = -DOUTPUT=stdout$/;&quot;        macro   language:CPreProcessor  extras:CppDef
+SRC  input.mak       /^SRC = hello.c$/;&quot;     macro   language:Make
+all  input.mak       /^all: hello$/;&quot;        target  language:Make
+hello        input.mak       /^hello: hello.o$/;&quot;    target  language:Make
+hello.o      input.mak       /^hello.o: hello.c$/;&quot;  target  language:Make
+</pre></div>
+</div>
+</section>
+</section>
+<section id="versions">
+<h2>VERSIONS<a class="headerlink" href="#versions" title="Link to this heading">¶</a></h2>
+<section id="change-since-0-0">
+<h3>Change since “0.0”<a class="headerlink" href="#change-since-0-0" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>New extra <code class="docutils literal notranslate"><span class="pre">CppDef</span></code> <a class="reference internal" href="#dinmake" id="id3"><span>[DINMAKE]</span></a></p></li>
+</ul>
+</section>
+</section>
+<section id="see-also">
+<h2>SEE ALSO<a class="headerlink" href="#see-also" title="Link to this heading">¶</a></h2>
+<p><a class="reference internal" href="ctags.1.html#ctags-1"><span class="std std-ref">ctags(1)</span></a></p>
+<div role="list" class="citation-list">
+<div class="citation" id="dinmake" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>DINMAKE<span class="fn-bracket">]</span></span>
+<span class="backrefs">(<a role="doc-backlink" href="#id1">1</a>,<a role="doc-backlink" href="#id3">2</a>)</span>
+<p><a class="reference external" href="https://github.com/bootlin/elixir/issues/221">CONFIG_X86_X32_ABI is not visible (defined in Makefile, not C or Kconfig)</a> (<a class="reference external" href="https://github.com/bootlin/elixir/issues/221">https://github.com/bootlin/elixir/issues/221</a>)</p>
+</div>
+</div>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+  <div>
+    <h3><a href="../index.html">Table of Contents</a></h3>
+    <ul>
+<li><a class="reference internal" href="#">ctags-lang-make</a><ul>
+<li><a class="reference internal" href="#synopsis">SYNOPSIS</a></li>
+<li><a class="reference internal" href="#description">DESCRIPTION</a><ul>
+<li><a class="reference internal" href="#examples">Examples</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#extracting-cpp-macro-defintions-defined-with-dfoo">EXTRACTING CPP MACRO DEFINTIONS DEFINED WITH -DFOO</a><ul>
+<li><a class="reference internal" href="#id2">Examples</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#versions">VERSIONS</a><ul>
+<li><a class="reference internal" href="#change-since-0-0">Change since “0.0”</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#see-also">SEE ALSO</a></li>
+</ul>
+</li>
+</ul>
+
+  </div>
+  <div>
+    <h4>Previous topic</h4>
+    <p class="topless"><a href="ctags-lang-lisp.7.html"
+                          title="previous chapter">ctags-lang-lisp</a></p>
+  </div>
+  <div>
+    <h4>Next topic</h4>
+    <p class="topless"><a href="ctags-lang-markdown.7.html"
+                          title="next chapter">ctags-lang-markdown</a></p>
+  </div>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="Related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="ctags-lang-markdown.7.html" title="ctags-lang-markdown"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="ctags-lang-lisp.7.html" title="ctags-lang-lisp"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Universal Ctags 0.3.0 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../man-pages.html" >Man pages</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">ctags-lang-make</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+    &#169; Copyright 2015-2022, Universal Ctags Team.
+      Last updated on 05 Jul 2026.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    </div>
+  </body>
+</html>
