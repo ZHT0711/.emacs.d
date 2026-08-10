@@ -19,7 +19,7 @@
 
 (defun nn-mode-line--click-map (cmd)
   (let ((map (make-sparse-keymap)))
-    (define-key map [mode-line mouse-1] cmd)
+    (keymap-set map "<mode-line> <mouse-1>" cmd)
     map))
 
 (defun nn-mode-line--prop (text help cmd)
@@ -60,7 +60,7 @@
                      (name (cond ((stringp prog) prog)
                                  ((consp prog) (car prog))
                                  (t "lsp")))
-                     (proc (ignore-errors (jsonrpc--process (eglot-current-server))))
+                     (proc (jsonrpc--process (eglot-current-server)))
                      (state (pcase (if proc (process-status proc) 'starting)
                               ('run "idle") ('exit "stopped") ('signal "crashed")
                               ('connect "connecting") ('listen "starting")

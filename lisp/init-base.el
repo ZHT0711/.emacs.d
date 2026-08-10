@@ -67,8 +67,8 @@
 (use-package mule
   :ensure nil
   :custom
-  (default-buffer-file-coding-system 'utf-8-unix)
   (locale-coding-system 'utf-8-unix)
+  (default-buffer-file-coding-system 'utf-8-unix)
   (default-process-coding-system '(utf-8-unix . utf-8-unix))
   :config
   (prefer-coding-system 'utf-8-unix)
@@ -79,8 +79,18 @@
   (set-file-name-coding-system 'utf-8-unix)
   (set-selection-coding-system 'utf-8-unix)
   (when (eq system-type 'windows-nt)
-    (w32-set-console-codepage 65001)
-    (set-selection-coding-system 'utf-16le-dos)))
+    (set-selection-coding-system 'utf-16le-dos)
+    (let* ((codepage (w32-get-console-codepage))
+           (coding (pcase codepage
+                     (65001 'utf-8-dos)
+                     (936 'gbk-dos)
+                     (_ nil))))
+      (when coding
+        (setq process-coding-system-alist
+              `(("[pP][lL][iI][nN][kK]" . #1=(,coding . ,coding))
+                ("[cC][mM][dD][pP][rR][oO][xX][yY]" . #1#)))
+        (setq default-process-coding-system
+              `(,coding . ,coding))))))
 
 (use-package uniquify
   :ensure nil

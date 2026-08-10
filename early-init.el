@@ -39,6 +39,8 @@
 (add-hook 'window-setup-hook (lambda () (setq inhibit-redisplay nil)))
 
 (when (eq system-type 'windows-nt)
+  (w32-set-console-codepage 65001)
+
   (when (boundp 'w32-get-true-file-attributes)
     (setq w32-get-true-file-attributes nil
           w32-pipe-read-delay 0
