@@ -30,11 +30,12 @@
            when (find-font spec)
            return (set-fontset-font t 'emoji spec nil 'prepend)))
 
-(dolist (chars '("::" "..." "->" "=>" "<=" ">=" "!==" "!=" "===" "=="))
-  (set-char-table-range
-   composition-function-table
-   (aref chars 0)
-   (nconc (char-table-range composition-function-table (aref chars 0))
-          (list (vector (regexp-quote chars) 0 'font-shape-gstring)))))
+;; If your font supports ligatures, uncomment it
+;; (cl-loop for chars in '("::" "..." "->" "=>" "<=" ">=" "!==" "!=" "===" "==")
+;;          for key = (aref chars 0)
+;;          do (set-char-table-range
+;;              composition-function-table  key
+;;              (nconc (char-table-range composition-function-table key)
+;;                     `(,(vector (regexp-quote chars) 0 'font-shape-gstring)))))
 
 (provide 'init-font)
