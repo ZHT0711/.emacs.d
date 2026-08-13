@@ -36,13 +36,13 @@
                                     nil "tree-sitter-markdown-inline/src")))
   :custom
   (markdown-ts-inline-images t)
-  (markdown-ts-image-max-width 800)
-  (markdown-ts-default-folding 'hide-children)
+  (markdown-ts-image-max-width 600)
   :config
   (setq markdown-ts-code-block-modes
         '((el emacs-lisp-mode) (elisp emacs-lisp-mode)
-          (sh sh-mode) (bash sh-mode)
+          (sh sh-mode) (bash sh-mode) (powershell powershell-mode)
           (bat bat-mode) (powershell sh-mode) (vbs js-mode)
+          (html web-mode) (css css-mode) (scss scss-mode)
           (javascript js-mode) (js js-mode) (jsx js-mode)
           (typescript typescript-ts-mode) (ts typescript-ts-mode) (tsx typescript-tsx-mode)
           (java java-mode) (go go-ts-mode) (rust rust-ts-mode) (python python-mode)

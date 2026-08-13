@@ -41,7 +41,7 @@ return next word's END (or previous word's START when REV), else W's end/start."
     (if rev (car w) (cdr w))))
 
 (defun my--fwd (&optional skip)
-  "Move point to end of current/next word (VSCode Ctrl+Right)."
+  "Move point to end of current/next word."
   (let ((eol (line-end-position)))
     (if (< (point) eol)
         (let ((w (my--next-word eol)))
@@ -50,7 +50,7 @@ return next word's END (or previous word's START when REV), else W's end/start."
         (forward-char 1) (my--fwd skip)))))
 
 (defun my--bwd (&optional skip)
-  "Move point to start of previous word (VSCode Ctrl+Left)."
+  "Move point to start of previous word."
   (let ((bol (line-beginning-position)))
     (if (= (point) bol)
         (when (> (point) (point-min))
@@ -67,7 +67,7 @@ return next word's END (or previous word's START when REV), else W's end/start."
   (dotimes (_ (or arg 1)) (my--bwd t)))
 
 (defun my-delete-word (dir)
-  "Delete word toward DIR (+1 forward, -1 backward), VSCode style."
+  "Delete word toward DIR (+1 forward, -1 backward)."
   (interactive)
   (if (and mark-active (not (eq (mark) (point))))
       (delete-region (min (mark) (point)) (max (mark) (point)))
@@ -84,14 +84,11 @@ return next word's END (or previous word's START when REV), else W's end/start."
       (when (if (> dir 0) (> dst pos) (< dst pos))
         (delete-region (min pos dst) (max pos dst))))))
 
-(defun my-delete-word-forward () (interactive) (my-delete-word 1))
-(defun my-delete-word-backward () (interactive) (my-delete-word -1))
-
-(keymap-global-set "C-<right>" #'my-forward-word)
-(keymap-global-set "C-<left>" #'my-backward-word)
-(keymap-global-set "C-<delete>" #'my-delete-word-forward)
-(keymap-global-set "C-<backspace>" #'my-delete-word-backward)
 (keymap-global-set "M-f" #'my-forward-word)
 (keymap-global-set "M-b" #'my-backward-word)
+(keymap-global-set "C-<right>" #'my-forward-word)
+(keymap-global-set "C-<left>" #'my-backward-word)
+(keymap-global-set "C-<delete>" (lambda () (interactive) (my-delete-word 1)))
+(keymap-global-set "C-<backspace>" (lambda () (interactive) (my-delete-word -1)))
 
 (provide 'init-word-move)

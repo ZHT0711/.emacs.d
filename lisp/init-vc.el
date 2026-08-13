@@ -69,16 +69,29 @@
   (make-directory (expand-file-name "transient/" nn-directory) t))
 
 (use-package magit
-  :hook (git-commit-setup . (lambda () (setq fill-column git-commit-summary-max-length)))
+  :commands magit-file-delete
+  :hook
+  (git-commit-setup . (lambda () (setq fill-column git-commit-summary-max-length)))
+  ;; HACK: See magit/magit#5320: large/long status buffers can change the
+  ;;   behavior of motions and TAB in obscure ways.
+  ;; REVIEW: REmove when magit/magit#5320 is addressed.
+  (magit-status-mode . (lambda () (setq long-line-threshold nil)))
+  (magit-process-mode . goto-address-mode)
+  (magit-diff-visit-file . my-magit-reveal-point-if-invisible-h)
   :custom
   (git-commit-major-mode 'git-commit-elisp-text-mode)
+  (magit-auto-revert-mode nil)
   (magit-commit-show-diff nil)
+  (magit-diff-refine-hunk t)
   (magit-refresh-verbose nil)
   (magit-refresh-status-buffer nil)
-  (magit-log-section-commit-count 5)
+  (magit-revision-insert-related-refs nil)
   (magit-run-hooks-from-githooks (not (eq system-type 'windows-nt)))
+  (magit-uniquify-buffer-names nil)
+  (magit-save-repository-buffers nil)
   :config
-  (setq magit-status-sections-hook
+  (setq magit-git-executable (or (executable-find magit-git-executable) "git")
+        magit-status-sections-hook
         '(magit-insert-status-headers
           magit-insert-untracked-files
           my-magit-insert-unstaged-files
@@ -103,26 +116,33 @@
            (face (if info (cddr info) 'magit-diff-file-heading)))
       (when (and code file)
         (magit-insert-section (file file)
-                              (insert (propertize
-                                       (concat (format "%-10s" status) file "\n")
-                                       'font-lock-face face))))))
+          (insert (propertize
+                   (concat (format "%-10s" status) file "\n")
+                   'font-lock-face face))))))
 
   (defun my-magit-insert-unstaged-files ()
     (let ((files (magit-git-lines "diff" "--name-status")))
       (when files
         (magit-insert-section (unstaged 'unstaged)
-                              (magit-insert-heading "Unstaged changes:")
-                              (dolist (line files)
-                                (unless (string-empty-p line)
-                                  (my-magit--wash-diff line)))))))
+          (magit-insert-heading "Unstaged changes:")
+          (dolist (line files)
+            (unless (string-empty-p line)
+              (my-magit--wash-diff line)))))))
 
   (defun my-magit-insert-staged-files ()
     (let ((files (magit-git-lines "diff" "--cached" "--name-status")))
       (when files
         (magit-insert-section (staged 'staged)
-                              (magit-insert-heading "Staged changes:")
-                              (dolist (line files)
-                                (unless (string-empty-p line)
-                                  (my-magit--wash-diff line))))))))
+          (magit-insert-heading "Staged changes:")
+          (dolist (line files)
+            (unless (string-empty-p line)
+              (my-magit--wash-diff line)))))))
+
+  (defun my-magit-reveal-point-if-invisible-h ()
+    "Reveal the point if in an invisible region."
+    (if (derived-mode-p 'org-mode)
+        (org-reveal '(4))
+      (require 'reveal)
+      (reveal-post-command))))
 
 (provide 'init-vc)

@@ -18,7 +18,8 @@
 (use-package simpc-mode
   :ensure nil
   :mode "\\.\\(c\\|h\\|cpp\\|hpp\\|cppm\\|ixx\\)\\'"
-  :config (with-eval-after-load 'eglot
-            (add-to-list 'eglot-server-programs '(simpc-mode . my-clangd-args))))
+  :config
+  (with-eval-after-load 'eglot
+    (add-to-list 'eglot-server-programs '(simpc-mode . my-clangd-args))))
 
 (provide 'lang-cc)

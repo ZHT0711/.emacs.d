@@ -5,35 +5,8 @@
   (emacs-lisp-indent-offset 2)
   (lisp-indent-function #'my-lisp-indent-function)
   :config
-  ;; Align indent keywords
-  ;; @see https://emacs.stackexchange.com/questions/10230/how-to-indent-keywords-aligned
   (defun my-lisp-indent-function (indent-point state)
-    "This function is the normal value of the variable `lisp-indent-function'.
-The function `calculate-lisp-indent' calls this to determine
-if the arguments of a Lisp function call should be indented specially.
-
-INDENT-POINT is the position at which the line being indented begins.
-Point is located at the point to indent under (for default indentation);
-STATE is the `parse-partial-sexp' state for that position.
-
-If the current line is in a call to a Lisp function that has a non-nil
-property `lisp-indent-function' (or the deprecated `lisp-indent-hook'),
-it specifies how to indent.  The property value can be:
-
-* `defun', meaning indent `defun'-style
-  \(this is also the case if there is no property and the function
-  has a name that begins with \"def\", and three or more arguments);
-
-* an integer N, meaning indent the first N arguments specially
-  (like ordinary function arguments), and then indent any further
-  arguments like a body;
-
-* a function to call that returns the indentation (or nil).
-  `lisp-indent-function' calls this function with the same two arguments
-  that it itself received.
-
-This function returns either the indentation to use, or nil if the
-Lisp function does not specify a special indentation."
+    "See https://emacs.stackexchange.com/questions/10230/how-to-indent-keywords-aligned"
     (let ((normal-indent (current-column))
           (orig-point (point)))
       (goto-char (1+ (elt state 1)))
@@ -46,8 +19,7 @@ Lisp function does not specify a special indentation."
                     calculate-lisp-indent-last-sexp))
             (progn (goto-char calculate-lisp-indent-last-sexp)
                    (beginning-of-line)
-                   (parse-partial-sexp (point)
-                                       calculate-lisp-indent-last-sexp 0 t)))
+                   (parse-partial-sexp (point) calculate-lisp-indent-last-sexp 0 t)))
         (backward-prefix-chars)
         (current-column))
        ((and (save-excursion
@@ -61,30 +33,43 @@ Lisp function does not specify a special indentation."
           (goto-char (+ 2 (elt state 1)))
           (current-column)))
        (t
-        (let ((function (buffer-substring (point)
-                                          (progn (forward-sexp 1) (point))))
+        (let ((function-name (buffer-substring (point) (progn (forward-sexp 1) (point))))
               method)
-          (setq method (or (function-get (intern-soft function)
-                                         'lisp-indent-function)
-                           (get (intern-soft function) 'lisp-indent-hook)))
+          (setq method (or (function-get (intern-soft function-name) 'lisp-indent-function)
+                           (get (intern-soft function-name) 'lisp-indent-hook)))
           (cond ((or (eq method 'defun)
                      (and (null method)
-                          (length> function 3)
-                          (string-match "\\`def" function)))
+                          (length> function-name 3)
+                          (string-match "\\`def" function-name)))
                  (lisp-indent-defform state indent-point))
                 ((integerp method)
-                 (lisp-indent-specform method state
-                                       indent-point normal-indent))
+                 (lisp-indent-specform method state indent-point normal-indent))
                 (method
-                 (funcall method indent-point state)))))))))
+                 (funcall method indent-point state))))))))
+
+  (define-advice elisp-get-var-docstring (:around (fn sym) my-emacs-lisp-append-value-to-eldoc-a)
+    "Display variable value next to documentation in eldoc."
+    (when-let* ((ret (funcall fn sym)))
+      (if (boundp sym)
+          (concat ret " "
+                  (let* ((truncated " [...]")
+                         (print-escape-newlines t)
+                         (str (symbol-value sym))
+                         (str (prin1-to-string str))
+                         (limit (- (frame-width) (length ret) (length truncated) 1)))
+                    (format (format "%%0.%ds%%s" (max limit 0))
+                            (propertize str 'face 'warning)
+                            (if (< (length str) limit) "" truncated))))
+        ret))))
 
 (use-package help-mode
   :ensure nil
   :hook (help-mode . cursor-sensor-mode)
-  :bind (:map help-mode-map
-              ("r" . remove-hook-at-point))
+  :bind
+  (:map help-mode-map
+   ("r" . my-remove-hook-at-point))
   :config
-  (defun function-advices (function)
+  (defun my-function-advices (function)
     "Return FUNCTION's advices."
     (let ((flist (indirect-function function)) advices)
       (while (advice--p flist)
@@ -92,13 +77,13 @@ Lisp function does not specify a special indentation."
         (setq flist (advice--cdr flist)))
       advices))
 
-  (defun help--update ()
+  (defun my-help--update ()
     "Update the help buffer."
     (if (eq major-mode 'helpful-mode)
         (helpful-update)
       (revert-buffer nil t)))
 
-  (defun add-remove-advice-button (advice function)
+  (defun my-add-remove-advice-button (advice function)
     (when (and (functionp advice) (functionp function))
       (let ((inhibit-read-only t)
             (msg (format "Remove advice `%s'" advice)))
@@ -112,29 +97,22 @@ Lisp function does not specify a special indentation."
                    (when (yes-or-no-p msg)
                      (message "%s from function `%s'" msg function)
                      (advice-remove function advice)
-                     (help--update)))
+                     (my-help--update)))
          'follow-link t))))
 
-  (defun add-button-to-remove-advice (buffer-or-name function)
+  (defun my-add-button-to-remove-advice (buffer-or-name function)
     "Add a button to remove advice."
     (with-current-buffer buffer-or-name
       (save-excursion
         (goto-char (point-min))
-        (let ((ad-list (function-advices function)))
+        (let ((ad-list (my-function-advices function)))
           (while (re-search-forward "^\\(?:This function has \\)?:[-a-z]+ advice: \\(.+\\)$" nil t)
             (let ((advice (car ad-list)))
-              (add-remove-advice-button advice function)
+              (my-add-remove-advice-button advice function)
               (setq ad-list (delq advice ad-list))))))))
 
-  (define-advice describe-function-1 (:after (function) advice-remove-button)
-    (add-button-to-remove-advice (help-buffer) function))
-  (with-eval-after-load 'helpful
-    (define-advice helpful-update (:after () advice-remove-button)
-      (when helpful--callable-p
-        (add-button-to-remove-advice (current-buffer) helpful--sym))))
-
   ;; Remove hooks
-  (defun remove-hook-at-point ()
+  (defun my-remove-hook-at-point ()
     "Remove the hook at the point in the *Help* buffer."
     (interactive)
     (unless (memq major-mode '(help-mode helpful-mode))
@@ -160,6 +138,13 @@ Lisp function does not specify a special indentation."
                              (throw 'break (thing-at-point 'sexp)))))))))
           (when (yes-or-no-p (format "Remove %s from %s? " func hook))
             (remove-hook hook (intern func))
-            (help--update)))))))
+            (my-help--update))))))
+
+  (define-advice describe-function-1 (:after (f) my-advice-remove-button)
+    (my-add-button-to-remove-advice (help-buffer) f))
+
+  (define-advice helpful-update (:after () my-advice-remove-button) ()
+                 (when helpful--callable-p
+                   (my-add-button-to-remove-advice (current-buffer) helpful--sym))))
 
 (provide 'lang-elisp)

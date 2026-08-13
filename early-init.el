@@ -19,6 +19,7 @@
       inhibit-startup-screen t
       inhibit-startup-echo-area-message user-login-name
       inhibit-redisplay t
+      inhibit-message t
       frame-inhibit-implied-resize t
       menu-bar-mode -1
       tool-bar-mode -1
@@ -36,7 +37,10 @@
                   gc-cons-threshold (* 16 1024 1024)  ; 16MB
                   gc-cons-percentage 0.1)))
 
-(add-hook 'window-setup-hook (lambda () (setq inhibit-redisplay nil)))
+(add-hook 'window-setup-hook
+          (lambda ()
+            (setq inhibit-redisplay nil
+                  inhibit-message nil)))
 
 (when (eq system-type 'windows-nt)
   (w32-set-console-codepage 65001)

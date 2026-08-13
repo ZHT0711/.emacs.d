@@ -1,6 +1,5 @@
 #+title: Elegant Emacs
 #+property: header-args :eval never-export
-
 #+attr_org: :center t
 [[./logo.png]]
 
@@ -18,7 +17,6 @@
   - *Visual debugger* — Dape floating toolbar, breakpoints, attach to running process
   - *Terminal anywhere* — Ghostel popup (=C-`=), Eshell, MSYS2 auto-detect
   - *Batteries included* — Magit, ripgrep, translation, RSS, proxy toggle, right-click menus
-
 
 * Install
 

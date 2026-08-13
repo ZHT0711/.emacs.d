@@ -18,7 +18,7 @@
   (display-time-day-and-date t)
   (display-time-default-load-average nil)
   (display-time-mail-string "")
-  (zoneinfo-style-world-list                ; use `M-x worldclock RET' to see it
+  (zoneinfo-style-world-list ; use `M-x worldclock RET' to see it
    '(("America/Los_Angeles" "Los Angeles")
      ("America/Vancouver" "Vancouver")
      ("Canada/Pacific" "Canada/Pacific")
@@ -49,7 +49,7 @@
 
 (use-package man
   :ensure nil
-  :commands (man)
+  :commands man
   :custom (Man-notify-method 'pushy))
 
 (use-package webjump
@@ -62,19 +62,25 @@
      ("(or emacs irrelevant)" . "oremacs.com")
      ("Mastering Emacs" . "https://www.masteringemacs.org/")
      ("DuckDuckGo" .
-      [simple-query "duckduckgo.com"
-                    "duckduckgo.com/?q=" ""])
+      [simple-query
+       "duckduckgo.com"
+       "duckduckgo.com/?q=" ""])
      ("Google" .
-      [simple-query "www.google.com"
-                    "www.google.com/search?q=" ""])
+      [simple-query
+       "www.google.com"
+       "www.google.com/search?q=" ""])
      ("Bing" .
-      [simple-query "www.bing.com"
-                    "www.bing.com/search?q=" ""])
+      [simple-query
+       "www.bing.com"
+       "www.bing.com/search?q=" ""])
      ("Baidu" .
-      [simple-query "www.baidu.com"
-                    "www.baidu.com/s?wd=" ""])
+      [simple-query
+       "www.baidu.com"
+       "www.baidu.com/s?wd=" ""])
      ("Wikipedia" .
-      [simple-query "wikipedia.org" "wikipedia.org/wiki/" ""]))))
+      [simple-query
+       "wikipedia.org"
+       "wikipedia.org/wiki/" ""]))))
 
 (use-package nn-license-template
   :ensure nil
@@ -112,8 +118,7 @@
    ("c" . rg-dwim-current-dir)
    ("f" . rg-dwim-current-file)
    ("m" . rg-menu))
-  :custom
-  (rg-keymap-prefix nil)
+  :custom (rg-keymap-prefix nil)
   :config
   (add-to-list 'rg-custom-type-aliases '("tmpl" . "*.tmpl"))
 
@@ -156,8 +161,7 @@
     :engines (list (gt-youdao-dict-engine)
                    (gt-youdao-suggest-engine))
     :render (gt-buffer-render)))
-  :custom-face
-  (gt-overlay-source-face ((t nil)))
+  :custom-face (gt-overlay-source-face ((t nil)))
   :config
   (defvar my-gt--active nil)
 
@@ -187,16 +191,11 @@
   (defun my-translate-region () (interactive) (my-gt-auto-translate 'region))
   (defun my-translate-buffer () (interactive) (my-gt-auto-translate 'buffer)))
 
-;; (use-package simple-mpv
-;;   :ensure nil
-;;   :commands simple-mpv-play-file
-;;   :bind (:map dired-mode-map
-;;          ("C-c p" . my-mpv-play-current-file))
-;;   :custom
-;;   (simple-mpv-audio-directory "~/Music")
-;;   (defun my-mpv-play-current-file ()
-;;     (simple-mp)
-;;     )
-;;   )
+(use-package simple-mpv
+  :ensure nil
+  :bind
+  (("C-c m" . simple-mpv-audio-browse)
+   :map dired-mode-map
+   ("C-c p" . simple-mpv-play-file)))
 
 (provide 'init-utils)
