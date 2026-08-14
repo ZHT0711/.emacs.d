@@ -35,7 +35,7 @@
   (completion-eager-update t)
   (completion-eager-display nil)
   (completion-ignore-case t)
-  (completion-show-help nil)
+  (completion-show-help t)
   (completion-styles '(partial-completion flex initials))
   (completions-format 'one-column)
   (completions-max-height 10)

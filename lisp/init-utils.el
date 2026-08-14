@@ -193,6 +193,7 @@
 
 (use-package simple-mpv
   :ensure nil
+  :custom (simple-mpv-debug nil)
   :bind
   (("C-c m" . simple-mpv-audio-browse)
    :map dired-mode-map

@@ -42,6 +42,8 @@
 (use-package files
   :ensure nil
   :custom
+  (make-backup-files t)
+  (backup-directory-alist `(("." . ,(expand-file-name "backup" nn-directory))))
   (auto-save-list-file-prefix (expand-file-name "auto-save-list/.saves-" nn-directory))
   (auto-save-file-name-transforms
    `(("\\`/[^/]*:\\([^/]*/\\)*\\([^/]*\\)\\'"
@@ -50,7 +52,6 @@
       ,(expand-file-name "autosave/\\2-" nn-directory) sha1)))
   (auto-mode-case-fold nil)
   (auto-save-default nil)
-  (make-backup-files nil)
   (delete-old-versions t)
   (delete-by-moving-to-trash t)
   (create-lockfiles nil)
@@ -79,18 +80,7 @@
   (set-file-name-coding-system 'utf-8-unix)
   (set-selection-coding-system 'utf-8-unix)
   (when (eq system-type 'windows-nt)
-    (set-selection-coding-system 'utf-16le-dos)
-    (let* ((codepage (w32-get-console-codepage))
-           (coding (pcase codepage
-                     (65001 'utf-8-dos)
-                     (936 'gbk-dos)
-                     (_ nil))))
-      (when coding
-        (setq process-coding-system-alist
-              `(("[pP][lL][iI][nN][kK]" . #1=(,coding . ,coding))
-                ("[cC][mM][dD][pP][rR][oO][xX][yY]" . #1#)))
-        (setq default-process-coding-system
-              `(,coding . ,coding))))))
+    (set-selection-coding-system 'utf-16le-dos)))
 
 (use-package uniquify
   :ensure nil
