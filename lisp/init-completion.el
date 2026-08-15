@@ -61,6 +61,35 @@
   (icomplete-hide-common-prefix nil)
   (icomplete-tidy-shadowed-file-names t))
 
+(use-package minibuffer-frame
+  :vc (:url "https://github.com/zHaOdANiuu/minibuffer-frame" :rev :newest)
+  :init (minibuffer-frame-mode 1)
+  :custom (minibuffer-frame-width 0.5)
+  :config
+  (when (and (display-graphic-p)
+             (eq system-type 'windows-nt))
+  ;; minibuffer-frame-mode 关闭时：禁用 *Completions* 自动弹出，确保垂直列表（无横向 possible completions）
+  (defun my-minibuffer-frame-off-fix ()
+    "minibuffer-frame-mode 关闭时避免 completions 窗口和 possible completions 提示。"
+    (setq completion-auto-help nil)
+    (when (and (boundp 'fido-vertical-mode)
+                (not fido-vertical-mode))
+      (condition-case nil
+          (fido-vertical-mode 1)
+        (error nil))))
+
+  (add-hook 'minibuffer-frame-mode-hook
+            (lambda ()
+              (unless minibuffer-frame-mode
+                (my-minibuffer-frame-off-fix))))
+
+    (define-advice minibuffer-frame-setup (:after () my-draw-input-switch-to-child)
+      (nn-ime-end)
+      (nn-ime-begin (cl-parse-integer (frame-parameter minibuffer-frame--frame 'window-id))))
+
+    (define-advice minibuffer-frame-exit (:after () my-draw-input-switch-to-main)
+      (nn-ime-end)
+      (nn-ime-begin (cl-parse-integer (frame-parameter nil 'window-id))))))
 (use-package completion-preview
   :ensure nil
   :if (and (>= emacs-major-version 30)
@@ -152,10 +181,11 @@
   :custom
   (global-corfu-mode 1)
   (global-corfu-modes '((not erc-mode help-mode gud-mode) t))
+  (global-corfu-minibuffer (lambda () (not (featurep 'minibuffer-frame))))
   (corfu-auto t)
   (corfu-auto-delay 0.1)
   (corfu-auto-prefix 2)
-  (corfu-cycle nil)
+  (corfu-cycle t)
   (corfu-preselect 'first)
   (corfu-on-exact-match nil)
   (corfu-quit-at-boundary nil)

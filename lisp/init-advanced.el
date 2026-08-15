@@ -314,7 +314,7 @@
 
 (use-package ibuffer
   :ensure nil
-  :bind ("C-x C-b" . ibuffer)
+  :bind ("C-x C-b" . ibuffer-other-window)
   :hook (ibuffer-mode . (lambda () (ibuffer-switch-to-saved-filter-groups "main")))
   :custom
   (ibuffer-expert t)

@@ -3,4 +3,5 @@
 eln-cache
 elpa
 tree-sitter
-custom.el
+var/
+tutorial/

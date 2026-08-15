@@ -106,7 +106,8 @@
 (keymap-global-set "M-<up>" #'my-move-line-up)
 (keymap-global-set "M-<down>" #'my-move-line-down)
 (keymap-global-set "M-w" #'my-copy)
-(keymap-global-set "C-w" #'my-cut)
+;; (keymap-global-set "C-w" #'my-cut)   ; 已改回默认 kill-region
+(keymap-global-set "C-k" #'my-cut)
 (keymap-global-set "C-x k" #'my-kill)
 (keymap-global-set "C-x C-k" #'kill-buffer)
 (keymap-global-set "C-S-<backspace>" #'my-delete-whole-line-no-kill)
