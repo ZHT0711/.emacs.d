@@ -8,6 +8,10 @@
   :type 'directory
   :group 'nn)
 
+;;; Create the base directory early so that files written into
+;;; nn-directory (e.g. project-list.el) do not fail on first run.
+(make-directory nn-directory t)
+
 (defcustom nn-flyspell-everywhere t
   "Non-nil to enable flyspell in all buffers."
   :type 'boolean
