@@ -63,25 +63,34 @@
 
 (use-package minibuffer-frame
   :vc (:url "https://github.com/zHaOdANiuu/minibuffer-frame" :rev :newest)
-  :init (minibuffer-frame-mode 1)
+  :init
+  ;; 与上游原生补全（Emacs 30 minibuffer-visible-completions）切换共存：
+  ;; minibuffer-frame 开启 → fido + child frame；关闭 → 原生补全。
+  (defun my-minibuffer-completion-setup ()
+    "按 minibuffer-frame-mode' 状态同步补全显示风格。"
+    (if minibuffer-frame-mode
+        (progn
+          (setq minibuffer-visible-completions nil
+                completion-auto-help nil
+                completion-auto-select nil)
+          (fido-mode 1)
+          (unless (bound-and-true-p fido-vertical-mode)
+            (fido-vertical-mode 1)))
+      (setq minibuffer-visible-completions 'up-down
+            completion-auto-help t
+            completion-auto-select t)
+      (fido-mode -1)
+      (fido-vertical-mode -1)))
+  (add-hook 'minibuffer-frame-mode-hook #'my-minibuffer-completion-setup)
+  (minibuffer-frame-mode 1)
   :custom (minibuffer-frame-width 0.5)
   :config
   (when (and (display-graphic-p)
              (eq system-type 'windows-nt))
-  ;; minibuffer-frame-mode 关闭时：禁用 *Completions* 自动弹出，确保垂直列表（无横向 possible completions）
-  (defun my-minibuffer-frame-off-fix ()
-    "minibuffer-frame-mode 关闭时避免 completions 窗口和 possible completions 提示。"
-    (setq completion-auto-help nil)
-    (when (and (boundp 'fido-vertical-mode)
-                (not fido-vertical-mode))
-      (condition-case nil
-          (fido-vertical-mode 1)
-        (error nil))))
-
-  (add-hook 'minibuffer-frame-mode-hook
-            (lambda ()
-              (unless minibuffer-frame-mode
-                (my-minibuffer-frame-off-fix))))
+  (defun my-toggle-minibuffer-completion-style ()
+    "切换补全风格：minibuffer-frame（child frame）↔ 原生补全。"
+    (interactive)
+    (minibuffer-frame-mode (if minibuffer-frame-mode -1 1)))
 
     (define-advice minibuffer-frame-setup (:after () my-draw-input-switch-to-child)
       (nn-ime-end)

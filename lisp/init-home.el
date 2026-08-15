@@ -1,8 +1,37 @@
 ;;; -*- lexical-binding: t -*-
-(defconst nn-logo-image-path "~/.emacs.d/logo.png")
-(defconst nn-home-buffer "*HOME*")
+(defvar nn-logo-image-path "~/.emacs.d/logo.png")
+(defvar nn-todo-path "~/.emacs.d/todo.md")
+(defvar nn-home-buffer "*HOME*")
+
 (defconst nn-home-package-load-count (length package-activated-list))
 (defconst nn-home-emacs-init-time (emacs-init-time))
+
+(defun nn-home-parse-todo-item (file)
+  (let ((paths '()))
+    (when (file-exists-p file)
+      (with-temp-buffer
+        (insert-file-contents file)
+        (goto-char (point-min))
+        (while (not (eobp))
+          (let ((line (string-trim (buffer-substring-no-properties
+                                    (line-beginning-position)
+                                    (line-end-position)))))
+            (when (string-match "^- \\[\\(.+?\\)\\](\\(.+\\))" line)
+              (push (cons (match-string 1 line) (expand-file-name (match-string 2 line))) paths))
+            (forward-line 1)))))
+    (nreverse paths)))
+
+(defun nn-home-format-todo-item (item)
+  (let ((text (car item))
+        (path (cdr item)))
+    (propertize
+     (format " %s" text)
+     'keymap (let ((map (make-sparse-keymap)))
+               (keymap-set map "RET" (lambda () (interactive) (find-file path)))
+               map)
+     'mouse-face 'highlight
+     'follow-link t
+     'nn-item-data path)))
 
 (defun nn-home-make-padding (len)
   (make-string (- len (default-font-width)) ?\s))
@@ -108,14 +137,14 @@
 
 (defun nn-home-keymap ()
   (let ((map (make-sparse-keymap)))
-    (keymap-set map "<return>" 'nn-home-return-action)
-    (keymap-set map "<down>" 'nn-home-next-line)
-    (keymap-set map "<up>" 'nn-home-previous-line)
-    (keymap-set map "o" 'nn-home-return-action)
-    (keymap-set map "n" 'nn-home-next-line)
-    (keymap-set map "p" 'nn-home-previous-line)
-    (keymap-set map "q" 'nn-home-quit)
-    (keymap-set map "g" 'nn-home-refresh)
+    (define-key map (kbd "RET") 'nn-home-return-action)
+    (define-key map (kbd "o") 'nn-home-return-action)
+    (define-key map (kbd "<down>") 'nn-home-next-line)
+    (define-key map (kbd "<up>") 'nn-home-previous-line)
+    (define-key map (kbd "n") 'nn-home-next-line)
+    (define-key map (kbd "p") 'nn-home-previous-line)
+    (define-key map (kbd "q") 'nn-home-quit)
+    (define-key map (kbd "g") 'nn-home-refresh)
     map))
 
 (defun nn-home-create ()
@@ -131,7 +160,8 @@
         (setq-local mode-line-format nil
                     mouse-1-click-follows-link nil
                     mouse-highlight nil
-                    vertical-scroll-bar nil)
+                    vertical-scroll-bar nil
+                    text-scale-mode-amount 0)
         (add-hook 'kill-buffer-query-functions (lambda () nil) nil t)))
     buf))
 
@@ -146,11 +176,17 @@
       (nn-home-insert-group
        "Config"
        '("~/.emacs.d/"
-         "~/.emacs.d/lisp/"))
+         "~/.emacs.d/lisp/"
+         "~/.emacs.d/todo.md"))
 
       (nn-home-insert-group
        "Recent Files"
-       (seq-take recentf-list recentf-max-saved-items)))))
+       (seq-take recentf-list recentf-max-saved-items))
+
+      (nn-home-insert-group
+       "Todo List"
+       (nn-home-parse-todo-item nn-todo-path)
+       #'nn-home-format-todo-item))))
 
 (defun nn-home-show ()
   (interactive)
