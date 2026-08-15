@@ -136,6 +136,7 @@
   :hook
   (savehist-save . my-savehist-unpropertize-variables-h)
   (savehist-save . my-savehist-remove-unprintable-registers-h)
+  (savehist-save . my-savehist-remove-raw-bytes-h)
   :init (savehist-mode 1)
   :custom
   (savehist-file (expand-file-name "savehist.el" nn-directory))
@@ -153,7 +154,16 @@
                                   collect (cons reg (substring-no-properties item))
                                   else collect (cons reg item))))
   (defun my-savehist-remove-unprintable-registers-h ()
-    (setq register-alist (cl-remove-if-not #'savehist-printable register-alist))))
+    (setq register-alist (cl-remove-if-not #'savehist-printable register-alist)))
+  (defun my-string-has-raw-byte-p (str)
+    "Return non-nil if STR contains raw bytes (unibyte garbage)."
+    (let ((found nil))
+      (dotimes (i (length str) found)
+        (when (>= (aref str i) #x3FFF80)
+          (setq found t)))))
+  (defun my-savehist-remove-raw-bytes-h ()
+    "Remove kill-ring entries containing raw bytes before saving."
+    (setq kill-ring (cl-remove-if #'my-string-has-raw-byte-p kill-ring))))
 
 (use-package project
   :ensure nil

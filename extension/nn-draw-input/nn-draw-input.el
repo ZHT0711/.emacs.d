@@ -67,6 +67,7 @@ Accumulates partial lines in `nn-draw-input--buf' and calls
          :name "nn-draw-input"
          :buffer nil
          :command (list (expand-file-name "nn-draw-input-relay.exe" nn-draw-input--dir))
+         :coding 'utf-8-unix
          :filter #'nn-draw-input--filter
          :sentinel #'nn-draw-input--sentinel))
   (message "nn-draw-input enabled"))
