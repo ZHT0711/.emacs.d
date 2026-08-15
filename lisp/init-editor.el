@@ -241,6 +241,7 @@
 
 (use-package nn-draw-input
     :ensure nil
+    :demand t
     :if (and (display-graphic-p)
              (eq system-type 'windows-nt))
   :hook (after-init . nn-draw-input-enable))
