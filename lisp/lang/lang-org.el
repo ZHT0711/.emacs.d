@@ -160,6 +160,9 @@
 (use-package org-clock
   :ensure nil
   :hook (kill-emacs . org-clock-save)
+  :init
+  ;; `org-clock-persist-file' 位于 .nn/org/ 下，需确保目录存在
+  (make-directory (expand-file-name "org/" nn-directory) t)
   :custom
   (org-clock-persist-file (expand-file-name "org/clock-persist.el" nn-directory))
   (org-clock-persist 'history)
