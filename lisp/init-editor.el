@@ -239,4 +239,9 @@
                        (+ (marker-position (car pair)) (length (cdr pair)))))
       (kill-new (string-join all-texts "\n")))))
 
+(use-package nn-draw-input
+    :ensure nil
+    :if (and (display-graphic-p)
+             (eq system-type 'windows-nt))
+  :hook (after-init . nn-draw-input-enable))
 (provide 'init-editor)
