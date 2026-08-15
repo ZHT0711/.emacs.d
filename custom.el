@@ -59,9 +59,9 @@
      "82d3ee142d16cc4b1576514996142342049906d1893033acff849de5b24b2ff3"
      "49dbae342db4a16048dc27350e0bd24b135b8c7ec72c5a4f104bad3a61f38e12" default))
  '(org-fold-catch-invisible-edits 'show-and-error nil nil "Customized with use-package org")
- '(package-selected-packages '(org-modern))
+ '(package-selected-packages nil)
  '(package-vc-selected-packages
-  '((minibuffer-frame :url "https://github.com/zHaOdANiuu/minibuffer-frame")))
+   '((minibuffer-frame :url "https://github.com/zHaOdANiuu/minibuffer-frame")))
  '(safe-local-variable-values
    '((nn-citre-external-tags "c:/Users/you/.cache/tags/system.tags")
      (citre-mode . t) (citre-mode) (citre-mode . 1)
