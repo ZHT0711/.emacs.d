@@ -31,6 +31,7 @@
 (require 'init-diagnostics)
 (require 'init-completion)
 (require 'init-navigation)
+(require 'init-imenu)
 (require 'init-vc)
 (require 'init-www)
 (require 'init-utils)
