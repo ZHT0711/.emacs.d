@@ -59,16 +59,9 @@
      "82d3ee142d16cc4b1576514996142342049906d1893033acff849de5b24b2ff3"
      "49dbae342db4a16048dc27350e0bd24b135b8c7ec72c5a4f104bad3a61f38e12" default))
  '(org-fold-catch-invisible-edits 'show-and-error nil nil "Customized with use-package org")
- '(package-selected-packages
-   '(apheleia calfw-org calibredb citre color-picker colorful-mode consult corfu
-              dape elfeed emmet-mode evil ghostel gt imenu-list indent-bars
-              magit markdown-mode material-icon minibuffer-frame
-              multiple-cursors nerd-icons-corfu no-littering nov org-modern
-              powershell rainbow-delimiters rg savefold shr-tag-pre-highlight
-              shrface symbol-overlay vundo wallabag web-mode yasnippet-capf
-              yasnippet-snippets))
+ '(package-selected-packages '(org-modern))
  '(package-vc-selected-packages
-   '((color-picker :url "https://github.com/zHaOdANiuu/color-picker.el")))
+  '((minibuffer-frame :url "https://github.com/zHaOdANiuu/minibuffer-frame")))
  '(safe-local-variable-values
    '((nn-citre-external-tags "c:/Users/you/.cache/tags/system.tags")
      (citre-mode . t) (citre-mode) (citre-mode . 1)
@@ -90,7 +83,7 @@
 (delete-selection-mode 1)
 
 ;;在标题栏显示路径~
-(setq frame-title-format
+(frame-title-format
       '((:eval (if (buffer-file-name)
                    (abbreviate-file-name (buffer-file-name))
                  "%b"))))
@@ -184,7 +177,3 @@
         (mc/create-fake-cursor-at-point)))))
 (add-to-list 'mc/cmds-to-run-once 'mc/toggle-cursor-at-point)
 (global-set-key (kbd "C-M-<") 'mc/toggle-cursor-at-point) ; 绑定到 Ctrl+Shift+,+Alt
-
-;;C-x C-/使用vundo
-(use-package vundo
-  :bind ("C-x C-/" . vundo))
