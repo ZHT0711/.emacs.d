@@ -10,7 +10,7 @@
 ;; --- imenu-list: 侧边栏显示 imenu ---
 (use-package imenu-list
   :bind
-  ("C-c l" . imenu-list-smart-toggle)
+  ("C-c C-l" . imenu-list-smart-toggle)
   :custom
   (imenu-list-focus-after-activation t)   ; 激活后自动聚焦到侧边栏
   (imenu-list-auto-resize nil)            ; 不自动调整窗口大小
