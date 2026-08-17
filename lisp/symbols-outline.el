@@ -241,14 +241,18 @@ It's a cons cell whose car/cdr is the expanded/collapsed indicator margin spec."
 
 (defun symbols-outline--before-move ()
   "Delete the indicator for current symbol before movement."
-  (when-let ((lp (get-text-property (line-beginning-position) 'line-prefix)))
-    (aset lp 0 ?\s)))
+  (when-let ((pos (line-beginning-position))
+             (lp (get-text-property pos 'line-prefix)))
+    (put-text-property pos (line-end-position) 'line-prefix
+                       (concat " " (substring lp 1)))))
 
 (defun symbols-outline--after-move ()
   "Set the indicator for current symbol after movement."
-  (when-let ((lp (get-text-property (line-beginning-position) 'line-prefix)))
-    (aset lp 0
-          (aref symbols-outline-current-symbol-indicator 0))))
+  (when-let ((pos (line-beginning-position))
+             (lp (get-text-property pos 'line-prefix)))
+    (put-text-property pos (line-end-position) 'line-prefix
+                       (concat (substring symbols-outline-current-symbol-indicator 0 1)
+                               (substring lp 1)))))
 
 (defun symbols-outline-next (n)
   "Move to the next symbol.
