@@ -40,3 +40,13 @@
   ;; Local init-home shows Recent Files; upstream enables recentf inside its own init-home.
   (recentf-mode 1)
   (require 'init-home))
+
+;; === nn-world current-line number face override (local preference) ===
+(defun my-nn-world-line-number-face ()
+  "Pink background with deep-red text for the current line number."
+  (when (member 'nn-world custom-enabled-themes)
+    (set-face-attribute 'line-number-current-line nil
+                        :foreground "#5a1d1d" :background "#f0b0e0")))
+(add-hook 'after-load-theme-hook #'my-nn-world-line-number-face)
+(my-nn-world-line-number-face)
+;; === end nn-world line-number face override ===
