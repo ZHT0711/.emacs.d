@@ -82,7 +82,14 @@
       (fido-mode -1)
       (fido-vertical-mode -1)))
   (add-hook 'minibuffer-frame-mode-hook #'my-minibuffer-completion-setup)
-  (minibuffer-frame-mode 1)
+  ;; TUI-safe minibuffer-frame enable (w32console has no child frames)
+  ;; Windows native TUI (w32console) has no child frame support:
+  ;; enabling minibuffer-frame crashes (exits) Emacs on each keystroke.
+  ;; Only enable on a graphical display.
+  (if (display-graphic-p)
+      (minibuffer-frame-mode 1)
+    (minibuffer-frame-mode -1))
+  (my-minibuffer-completion-setup)
   :custom (minibuffer-frame-width 0.5)
   :config
   (when (and (display-graphic-p)

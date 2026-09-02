@@ -37,17 +37,23 @@
   (make-string (- len (default-font-width)) ?\s))
 
 (defun nn-home-insert-logo ()
-  (let ((padding (floor (* (window-width) 0.5))))
-    (insert (nn-home-make-padding padding))
-    (insert-image (create-image nn-logo-image-path))
-    (insert "\n")))
+  ;; TTY has no image support; skipping the logo avoids crashing tty face handling.
+  (when (display-graphic-p)
+    (let ((padding (floor (* (window-width) 0.5))))
+      (insert (nn-home-make-padding padding))
+      (insert-image (create-image nn-logo-image-path))
+      (insert "\n"))))
 
 (defun nn-home-insert-info ()
   (let* ((text (format "%d packages loaded in %s" nn-home-package-load-count nn-home-emacs-init-time))
+         ;; TTY has no font metrics: :height in a face crashes tty face realization.
+         (info-face (if (display-graphic-p)
+                      '(:inherit font-lock-type-face :height 0.8)
+                    'font-lock-type-face))
          (padding (- (floor (window-width) 2)
                      (floor (- (length text) (floor (* (length text) 0.2))) 2))))
     (insert (make-string (max padding 0) ?\s))
-    (insert (propertize text 'face '(:inherit font-lock-type-face :height 0.8)))
+    (insert (propertize text 'face info-face))
     (insert "\n\n")))
 
 (defun nn-home-insert-group (group-name items &optional item-formatter)

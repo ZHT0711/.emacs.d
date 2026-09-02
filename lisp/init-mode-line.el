@@ -179,8 +179,10 @@
 
 (add-hook 'after-make-frame-functions
           (lambda (_)
-            (set-face-attribute 'mode-line nil :height 130)
-            (set-face-attribute 'mode-line-active nil :height 130)
-            (set-face-attribute 'mode-line-inactive nil :height 130)))
+            ;; :height is a font attribute; setting it on tty faces is invalid.
+            (when (display-graphic-p)
+              (set-face-attribute 'mode-line nil :height 130)
+              (set-face-attribute 'mode-line-active nil :height 130)
+              (set-face-attribute 'mode-line-inactive nil :height 130))))
 
 (provide 'init-mode-line)

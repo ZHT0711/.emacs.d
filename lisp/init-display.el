@@ -193,8 +193,9 @@ from `readable-foreground-color'."
    nerd-icons-pomicon
    nerd-icons-powerline)
   :config
-  (unless (find-font (font-spec :name "Symbols Nerd Font Mono"))
-    (nerd-icons-install-fonts t)))
+  (when (display-graphic-p)
+    (unless (find-font (font-spec :name "Symbols Nerd Font Mono"))
+      (nerd-icons-install-fonts t))))
 
 (use-package nerd-icons-corfu
   :if (eq nn-completion-style 'corfu)

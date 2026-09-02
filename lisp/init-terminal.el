@@ -9,7 +9,12 @@
 
 (use-package tty-tip
   :ensure nil
-  :if (featurep 'tty-child-frames)
+  ;; Windows native TUI (w32console) has no tty child frame support;
+  ;; (featurep 'tty-child-frames) is always non-nil on the Windows build,
+  ;; so enable only on non-Windows ttys (e.g. WSL/Linux xterm).
+  ;; tty-tip disabled on Windows (no tty child frame support)
+  :if (and (not (display-graphic-p))
+           (not (eq system-type 'windows-nt)))
   :hook (tty-setup . tty-tip-mode))
 
 (use-package shell
