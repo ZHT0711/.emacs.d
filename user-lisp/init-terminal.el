@@ -144,7 +144,9 @@
    :map project-prefix-map
    ("m" . ghostel-project)
    ("M" . ghostel-project-list-buffers))
-  :custom (ghostel-term "xterm-256color")
+  :custom
+  (ghostel-term "xterm-256color")
+  (ghostel-module-auto-install 'download)
   :config
   (defun my-ghostel-send-C-k-and-kill ()
     "Send `C-k' to ghostel.
