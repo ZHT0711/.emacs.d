@@ -61,12 +61,11 @@
  '(org-fold-catch-invisible-edits 'show-and-error nil nil "Customized with use-package org")
  '(package-selected-packages
    '(apheleia calfw-org calibredb citre color-picker colorful-mode consult corfu
-              dape elfeed emmet-mode evil ghostel gt imenu-list indent-bars
-              magit markdown-mode material-icon minibuffer-frame
-              multiple-cursors nerd-icons-corfu no-littering nov org-modern
-              powershell rainbow-delimiters rg savefold shr-tag-pre-highlight
-              shrface symbol-overlay vundo wallabag web-mode yasnippet-capf
-              yasnippet-snippets))
+     dape elfeed emmet-mode evil ghostel gt imenu-list indent-bars magit
+     markdown-mode material-icon minibuffer-frame multiple-cursors
+     nerd-icons-corfu no-littering nov org-modern powershell rainbow-delimiters
+     rg savefold shr-tag-pre-highlight shrface symbol-overlay telega vundo
+     wallabag web-mode yasnippet-capf yasnippet-snippets))
  '(package-vc-selected-packages
    '((color-picker :url "https://github.com/zHaOdANiuu/color-picker.el")))
  '(safe-local-variable-values
@@ -75,10 +74,10 @@
      (nn-citre-external-tags "~/.cache/tags/system.tags")
      (counsel-etags-extra-tags-files "~/.cahce/tags/system.tags")
      (eval and buffer-file-name (not (eq major-mode 'package-recipe-mode))
-           (or (require 'package-recipe-mode nil t)
-               (let ((load-path (cons "../package-build" load-path)))
-                 (require 'package-recipe-mode nil t)))
-           (package-recipe-mode)))))
+      (or (require 'package-recipe-mode nil t)
+          (let ((load-path (cons "../package-build" load-path)))
+            (require 'package-recipe-mode nil t)))
+      (package-recipe-mode)))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
