@@ -15,7 +15,8 @@
          return (set-face-attribute 'default nil :family font :height 140))
 ;; Chinese
 (cl-loop for font in '("LXGW WenKai Mono" "Sarasa Mono SC"
-                       "Microsoft YaHei" "DengXian" "Simhei")
+                       "Microsoft YaHei" "DengXian" "Simhei"
+                       "Noto Sans CJK SC")
          for spec = (font-spec :family font)
          when (find-font spec)
          return (progn
