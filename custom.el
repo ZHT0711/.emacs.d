@@ -63,9 +63,9 @@
    '(apheleia calfw-org calibredb citre color-picker colorful-mode consult corfu
      dape elfeed emmet-mode evil ghostel gt imenu-list indent-bars magit
      markdown-mode material-icon minibuffer-frame multiple-cursors
-     nerd-icons-corfu no-littering nov org-modern powershell rainbow-delimiters
-     rg savefold shr-tag-pre-highlight shrface symbol-overlay telega vundo
-     wallabag web-mode yasnippet-capf yasnippet-snippets))
+     nerd-icons-corfu no-littering nov olivetti org-modern powershell
+     rainbow-delimiters rg savefold shr-tag-pre-highlight shrface symbol-overlay
+     telega vundo wallabag web-mode yasnippet-capf yasnippet-snippets))
  '(package-vc-selected-packages
    '((color-picker :url "https://github.com/zHaOdANiuu/color-picker.el")))
  '(safe-local-variable-values
