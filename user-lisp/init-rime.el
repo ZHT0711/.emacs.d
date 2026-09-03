@@ -44,6 +44,13 @@
   "Non-nil when a usable librime is present on this host.")
 
 (when nn-rime-available
+  ;; Some Emacs/package-quickstart combos fail to auto-activate rime during
+  ;; `package-activate-all' (its autoloads call `register-input-method' with
+  ;; `rime-title' before rime.el is loaded), leaving the package out of
+  ;; `load-path'.  Force activation idempotently before requiring it.
+  (require 'package)
+  (when-let ((rime-desc (assq 'rime package-alist)))
+    (package-activate 'rime))
   (use-package rime
     :ensure t
     ;; Must load rime.el up front so `register-input-method' actually runs
