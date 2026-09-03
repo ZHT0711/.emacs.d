@@ -35,6 +35,7 @@
   (require 'init-mode-line)
   (require 'init-terminal)
   (require 'init-keybind)
+  (require 'init-rime)
   (require 'init-word-move)
   (require 'init-context-menu)
   ;; Local init-home shows Recent Files; upstream enables recentf inside its own init-home.
