@@ -14,6 +14,14 @@
 
 (setq custom-file (expand-file-name "custom.el" user-emacs-directory))
 (let ((file-name-handler-alist nil))
+  ;; Local modules live under user-lisp/ (and bundled packages under
+  ;; user-lisp/package/*); make sure they are on `load-path' before the
+  ;; requires below run (fresh clones have no other injection point).
+  (add-to-list 'load-path (expand-file-name "user-lisp" user-emacs-directory))
+  (dolist (subdir (directory-files
+                   (expand-file-name "user-lisp/package" user-emacs-directory)
+                   t "\\`[^.]"))
+    (add-to-list 'load-path subdir))
   (require 'nn-world-theme)
   (require 'init-def)
   (load custom-file)
