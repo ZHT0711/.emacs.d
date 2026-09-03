@@ -15,7 +15,7 @@
     (rime-share-data-dir "/usr/share/rime-data")
     ;; Posframe popup on GUI, minibuffer candidates in terminal (-nw).
     (rime-show-candidate (if (display-graphic-p) 'posframe 'minibuffer))
-    :config
+    :init
     (setq default-input-method "rime")))
 
 (provide 'init-rime)
