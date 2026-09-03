@@ -15,6 +15,11 @@
 ;;     * user data: Weasel RimeUserDir (defaults to E:/Rime; tweak below if
 ;;       your RimeUserDir differs).
 ;;     * share data: Weasel built-in data dir (adjust on Weasel upgrades).
+;;
+;; Loading strategy: rime.el is loaded by absolute package path instead of
+;; relying on `package-activate-all' (which can skip rime because its
+;; autoloads reference `rime-title' before rime.el is loaded, leaving the
+;; package out of `load-path').
 
 (defvar nn-rime-dll-dir
   (and (eq system-type 'windows-nt)
@@ -33,6 +38,12 @@
         (t "/usr/share/rime-data"))
   "Rime share data dir (built-in schemas, opencc data).")
 
+(defun nn-rime-find-package-dir ()
+  "Return the elpa directory of the rime package, or nil."
+  (let ((elpa (or (bound-and-true-p package-user-dir)
+                  (expand-file-name "elpa" user-emacs-directory))))
+    (car (directory-files elpa t "^rime-[0-9]" t))))
+
 (defvar nn-rime-available
   (or (and (eq system-type 'gnu/linux)
            (file-exists-p "/usr/include/rime_api.h"))
@@ -44,32 +55,25 @@
   "Non-nil when a usable librime is present on this host.")
 
 (when nn-rime-available
-  ;; Some Emacs/package-quickstart combos fail to auto-activate rime during
-  ;; `package-activate-all' (its autoloads call `register-input-method' with
-  ;; `rime-title' before rime.el is loaded), leaving the package out of
-  ;; `load-path'.  Force activation idempotently before requiring it.
-  (require 'package)
-  (when-let ((rime-desc (assq 'rime package-alist)))
-    (package-activate 'rime))
-  (use-package rime
-    :ensure t
-    ;; Must load rime.el up front so `register-input-method' actually runs
-    ;; (its autoloads reference `rime-title', which is only defined after
-    ;; rime.el is loaded); otherwise C-\ fails with
-    ;; "Can't activate input method rime".  The librime engine itself stays
-    ;; deferred until the input method is activated.
-    :demand t
-    :custom
-    (rime-user-data-dir nn-rime-user-data-dir)
-    (rime-share-data-dir nn-rime-share-data-dir)
-    ;; Posframe popup on GUI, minibuffer candidates in terminal (-nw).
-    (rime-show-candidate (if (display-graphic-p) 'posframe 'minibuffer))
-    :init
-    (when nn-rime-dll-dir
-      ;; Let the module loader resolve librime.dll (DLL search uses PATH).
-      (setenv "PATH"
-              (concat nn-rime-dll-dir path-separator (getenv "PATH"))))
-    (setq default-input-method "rime")))
+  (let ((rime-dir (nn-rime-find-package-dir)))
+    (when (and (null rime-dir) (fboundp 'package-install))
+      ;; First run: fetch and install the rime package.
+      (require 'package)
+      (package-refresh-contents)
+      (package-install 'rime)
+      (setq rime-dir (nn-rime-find-package-dir)))
+    (when rime-dir
+      (add-to-list 'load-path rime-dir)
+      (require 'rime)                 ; registers the input method
+      (setq rime-user-data-dir nn-rime-user-data-dir
+            rime-share-data-dir nn-rime-share-data-dir
+            ;; Posframe popup on GUI, minibuffer candidates in terminal (-nw).
+            rime-show-candidate (if (display-graphic-p) 'posframe 'minibuffer))
+      (when nn-rime-dll-dir
+        ;; Let the module loader resolve librime.dll (DLL search uses PATH).
+        (setenv "PATH"
+                (concat nn-rime-dll-dir path-separator (getenv "PATH"))))
+      (setq default-input-method "rime"))))
 
 (provide 'init-rime)
 ;;; init-rime.el ends here
