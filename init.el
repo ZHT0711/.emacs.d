@@ -18,6 +18,7 @@
   ;; user-lisp/package/*); make sure they are on `load-path' before the
   ;; requires below run (fresh clones have no other injection point).
   (add-to-list 'load-path (expand-file-name "user-lisp" user-emacs-directory))
+  (add-to-list 'load-path (expand-file-name "user-lisp/lang" user-emacs-directory))
   (dolist (subdir (directory-files
                    (expand-file-name "user-lisp/package" user-emacs-directory)
                    t "\\`[^.]"))
