@@ -46,7 +46,12 @@
 (when nn-rime-available
   (use-package rime
     :ensure t
-    :defer t
+    ;; Must load rime.el up front so `register-input-method' actually runs
+    ;; (its autoloads reference `rime-title', which is only defined after
+    ;; rime.el is loaded); otherwise C-\ fails with
+    ;; "Can't activate input method rime".  The librime engine itself stays
+    ;; deferred until the input method is activated.
+    :demand t
     :custom
     (rime-user-data-dir nn-rime-user-data-dir)
     (rime-share-data-dir nn-rime-share-data-dir)
