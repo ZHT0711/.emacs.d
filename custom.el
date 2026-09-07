@@ -187,3 +187,31 @@
 ;;C-x C-/使用vundo
 (use-package vundo
   :bind ("C-x C-/" . vundo))
+
+
+
+;; === local preference: cursor stays still 6s, blinks only after 6s idle ===
+(defvar my/blink-delay-seconds 6
+  "连续无操作多少秒后,光标才开始闪烁。")
+
+(defvar my/blink-idle-timer nil)
+
+(defun my/blink-stop ()
+  "输入后:让光标实心不闪,并重新开始 6 秒倒计时。"
+  (when my/blink-idle-timer
+    (cancel-timer my/blink-idle-timer))
+  (when blink-cursor-mode
+    (blink-cursor-mode -1))
+  (setq my/blink-idle-timer
+        (run-with-idle-timer my/blink-delay-seconds nil #'my/blink-start)))
+
+(defun my/blink-start ()
+  "空闲满 6 秒:开始让光标闪烁。"
+  (unless blink-cursor-mode
+    (blink-cursor-mode 1)))
+
+;; 每执行一个命令(按键、移动光标等)都会重置倒计时
+(add-hook 'post-command-hook #'my/blink-stop)
+;; 启动时立即初始化,避免刚启动的头 6 秒内光标在闪
+(my/blink-stop)
+;; === end cursor-blink delay ===

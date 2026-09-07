@@ -126,7 +126,7 @@
 (keymap-global-set "C-<tab>" #'bs-cycle-next)
 (keymap-global-set "C-S-<tab>" #'bs-cycle-previous)
 (keymap-global-set "C-a" #'back-to-indentation)
-(keymap-global-set "C-z" #'undo)
+;; C-z 保持默认的 suspend-frame(挂起)
 (keymap-global-set "C-S-z" #'undo-redo)
 
 (provide 'init-keybind)
