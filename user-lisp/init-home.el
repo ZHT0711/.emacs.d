@@ -1,8 +1,12 @@
 ;;; -*- lexical-binding: t -*-
-;; Upstream (zHaOdANiuu) defines user-lisp-directory in its init.el; this fork
-;; has not synced that, so fall back to the conventional location here.
+;; Upstream (zHaOdANiuu) defines user-lisp-directory in its own environment but
+;; never in this repo; this fork has not synced that, so fall back to the
+;; conventional location here.  Trailing slash matters: init-home concatenates
+;; it with "logo.png".
 (unless (boundp 'user-lisp-directory)
-  (defvar user-lisp-directory (expand-file-name "user-lisp" user-emacs-directory)))
+  (defvar user-lisp-directory
+    (file-name-as-directory
+     (expand-file-name "user-lisp" user-emacs-directory))))
 (require 'recentf)
 (require 'bookmark)
 (recentf-mode 1)
