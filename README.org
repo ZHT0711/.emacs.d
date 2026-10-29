@@ -29,7 +29,7 @@ possible, while customization and persistent state remain easy to find in
   first input or file visit, so Emacs stays responsive while common editing and
   project state work out of the box.
 - *Editing and appearance.* Completion, formatting, folding, multiple cursors,
-  file and buffer management, font and icon fallback, and the =nn-world= dark
+  file and buffer management, font and icon fallback, and the =Catppuccin Mocha= dark
   theme make the editor comfortable for daily use.
 - *Programming.* Tree-sitter modes cover C/C++, Emacs Lisp, JavaScript and
   TypeScript, web templates, shell, Org, Markdown, JSON, and YAML.  Eglot
@@ -64,6 +64,42 @@ The most useful defaults are:
 | =C-`=           | Toggle the Ghostel terminal   |
 | =C-<f1>=        | Show the =*HOME*= dashboard     |
 |---------------+-------------------------------|
+* Personal additions
+
+- =which-key= shows available keys after a prefix such as =C-x= or =C-c=.
+- Vertico, Orderless, and Marginalia provide a vertical command menu with
+  descriptions. Search with space-separated words, for example =theme load=.
+  In file prompts, =M-RET= accepts your typed path when creating a new file.
+- Corfu keeps =RET= for newlines; =Tab= accepts a code completion.
+
+| Key       | Action                           |
+|-----------+----------------------------------|
+| =C-x b=   | Search buffers with Consult      |
+| =M-s l=   | Search lines in the current file |
+| =M-s r=   | Search text in the project       |
+| =C-==     | Expand the selected region       |
+| =C-M-==   | Contract the selected region     |
+| =C-c y=   | Choose a code snippet            |
+| =C-c i=   | Toggle indentation guides       |
+
+Indentation guides use the same colors as the rainbow brackets. The toggle
+affects the current buffer; guides start enabled in programming modes.
+Existing tab-indented lines also show guides when the mode inserts spaces;
+code buffers show tab markers without drawing a marker for every space, which
+keeps scrolling and editing responsive. When guides are off, the same key turns
+on space markers so indentation can be inspected.
+
+C++ snippets live under =etc/yasnippet/snippets/c++-mode/= and work with
+=simpc-mode= C++ files, =c++-mode=, and =c++-ts-mode=. Triggers include =main=,
+=acm=, =bits=, =cf=, =gcd=, =qpow=, =sort=, and =vec=. Type a trigger and press =Tab=,
+or use =C-c y=. Within a snippet, =Tab= moves between editable fields.
+=gcd= requires =<numeric>=; =sort= requires =<algorithm>=.
+
+Handwritten personal preferences are in =user-lisp/init-local.el=;
+=custom.el= holds settings saved through Customize. Startup temporarily raises
+the garbage collection threshold to 128 MiB, then restores it to 32 MiB with
+=gc-cons-percentage= set to 0.1.
+
 * Requirements
 
 This configuration supports only GNU Emacs 31 and newer.  A graphical frame is

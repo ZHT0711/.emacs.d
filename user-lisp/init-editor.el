@@ -53,6 +53,27 @@
   :ensure nil
   :hook (nn-first-input . delete-selection-mode))
 
+(use-package expand-region
+  :bind
+  (("C-=" . er/expand-region)
+   ("C-M-=" . er/contract-region))
+  :config
+  (defun my-er-mark-treesit-node ()
+    "Expand to a larger syntax node when this buffer has a parser."
+    (when (and (fboundp 'treesit-parser-list) (treesit-parser-list))
+      (let* ((beg (if (use-region-p) (region-beginning) (point)))
+             (end (if (use-region-p) (region-end) (point)))
+             (root (treesit-buffer-root-node))
+             (node (treesit-node-descendant-for-range root beg end)))
+        (while (and node
+                    (= (treesit-node-start node) beg)
+                    (= (treesit-node-end node) end))
+          (setq node (treesit-node-parent node)))
+        (when node
+          (goto-char (treesit-node-start node))
+          (set-mark (treesit-node-end node))))))
+  (add-to-list 'er/try-expand-list #'my-er-mark-treesit-node t))
+
 (use-package so-long
   :ensure nil
   :hook (nn-first-file . global-so-long-mode)

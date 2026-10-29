@@ -3,6 +3,17 @@
 ;; https://debbugs.gnu.org/cgi/bugreport.cgi?bug=81506
 ;; (setq w32-ime-preedit t)
 
+;; Allow more allocation during startup, then restore normal GC limits.
+(setq gc-cons-threshold (* 128 1024 1024)
+      gc-cons-percentage 0.6)
+
+(defun my-restore-gc-settings ()
+  "Restore garbage collection limits for interactive editing."
+  (setq gc-cons-threshold (* 32 1024 1024)
+        gc-cons-percentage 0.1))
+
+(add-hook 'emacs-startup-hook #'my-restore-gc-settings 100)
+
 (use-package emacs
   :ensure nil
   :hook (window-setup . (lambda () (setq inhibit-redisplay nil inhibit-message nil)))
@@ -46,8 +57,6 @@
   (user-lisp-auto-scrape nil)
   (native-comp-jit-compilation nil)
   (native-comp-deferred-compilation nil)
-  (gc-cons-percentage (if noninteractive #x8000000 most-positive-fixnum))
-  (gc-cons-threshold (if noninteractive #x8000000 most-positive-fixnum))
   (load-prefer-newer t)
   (redisplay-skip-fontification-on-input t)
   (read-process-output-max (* 64 1024))
@@ -104,7 +113,15 @@
         (setenv "HOME" home)
         (setq abbreviated-home-dir nil)))
 
-    (when-let* ((bash (executable-find "bash.exe")))
+    (when-let* ((bash (or (let ((msys "C:/msys64/usr/bin/bash.exe"))
+                            (and (file-exists-p msys) msys))
+                          (executable-find "bash.exe"))))
+      ;; Non-login Bash inherits Emacs' PATH; include its companion tools.
+      ;; `exec-path' also lets Emacs detect grep before invoking the shell.
+      (let ((bin (directory-file-name (file-name-directory bash))))
+        (add-to-list 'exec-path bin)
+        (unless (member bin (parse-colon-path (getenv "PATH")))
+          (setenv "PATH" (concat bin path-separator (getenv "PATH")))))
       (setq shell-file-name bash)
       (setenv "MSYSTEM" "UCRT64")
       (setenv "SHELL" bash))))

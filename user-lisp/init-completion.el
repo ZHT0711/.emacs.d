@@ -47,24 +47,60 @@
   ;; ignore jsonrpc log
   (fset #'jsonrpc--log-event #'ignore))
 
-(use-package icomplete
-  :ensure nil
+(use-package orderless
+  :demand t
+  :custom
+  (completion-styles '(orderless basic))
+  (completion-category-defaults nil)
+  (completion-category-overrides '((file (styles basic partial-completion))))
+  (completion-pcm-leading-wildcard t))
+
+(use-package vertico
+  :demand t
   :bind ("C-x C-r" . my-recentf-open)
   :init
-  (fido-mode 1)
-  (fido-vertical-mode 1)
+  (when (fboundp 'fido-vertical-mode) (fido-vertical-mode -1))
+  (when (fboundp 'fido-mode) (fido-mode -1))
+  (when (fboundp 'icomplete-mode) (icomplete-mode -1))
   :custom
-  (icomplete-max-delay-chars 2)
-  (icomplete-hide-common-prefix nil)
-  (icomplete-tidy-shadowed-file-names t)
-  (icomplete-show-matches-on-no-input nil)
+  (vertico-count 12)
+  (vertico-cycle t)
   :config
+  (vertico-mode 1)
   (defun my-recentf-open ()
     (interactive)
     (let ((file (completing-read "Find recent file: " recentf-list nil t)))
       (if (and file (file-exists-p file))
           (find-file file)
         (message "File open failed")))))
+
+(use-package vertico-directory
+  :ensure nil
+  :after vertico
+  :bind
+  (:map vertico-map
+   ("RET" . vertico-directory-enter)
+   ("DEL" . vertico-directory-delete-char)
+   ("M-DEL" . vertico-directory-delete-word))
+  :hook (rfn-eshadow-update-overlay . vertico-directory-tidy))
+
+(use-package marginalia
+  :demand t
+  :bind (:map minibuffer-local-map ("M-A" . marginalia-cycle))
+  :config (marginalia-mode 1))
+
+(use-package consult
+  :bind
+  (("C-x b" . consult-buffer)
+   ("C-x r b" . consult-bookmark)
+   ("M-s l" . consult-line)
+   ("M-s r" . consult-ripgrep)
+   ("M-g e" . consult-compile-error)
+   ("M-g f" . consult-flymake)
+   ("M-y" . consult-yank-pop))
+  :init
+  (setq xref-show-xrefs-function #'consult-xref
+        xref-show-definitions-function #'consult-xref))
 
 (use-package completion-preview
   :ensure nil
@@ -86,13 +122,11 @@
   :bind
   (:map corfu-map
    ([tab] . corfu-complete)
-   ("<return>" . corfu-complete)
    ([backtab] . corfu-previous)
    ("<escape>" . corfu-quit)
    ("S-SPC" . corfu-insert-separator))
   :hook (nn-first-input . global-corfu-mode)
   :custom
-  (cor)
   (corfu-auto t)
   (corfu-auto-delay 0.2)
   (corfu-auto-prefix 2)
@@ -112,6 +146,10 @@
   (global-corfu-minibuffer nil)
   (global-corfu-modes '((not erc-mode help-mode gud-mode) t))
   :config
+  ;; Keep RET as newline; use Tab to accept a completion explicitly.
+  (keymap-unset corfu-map "RET" t)
+  (keymap-unset corfu-map "<return>" t)
+
   ;; HACK: If you want to update the visual hints after completing minibuffer
   ;;   commands with Corfu and exiting, you have to do it manually.
   (define-advice exit-minibuffer
@@ -163,6 +201,10 @@
       (corfu-popupinfo-mode -1))))
 
 (use-package yasnippet
+  :hook
+  (prog-mode . yas-minor-mode)
+  (simpc-mode . my-yas-enable-cxx-snippets)
+  :bind (:map yas-minor-mode-map ("C-c y" . yas-insert-snippet))
   :commands
   (yas-minor-mode-on
    yas-expand
@@ -176,11 +218,20 @@
    yas-maybe-expand-abbrev-key-filter)
   :custom
   (yas-verbosity 3)
-  (yas-snippet-dirs nil)
-  :config (yas-global-mode 1))
+  (yas-snippet-dirs
+   (list (expand-file-name "etc/yasnippet/snippets" user-emacs-directory)))
+  :config
+  (defun my-yas-enable-cxx-snippets ()
+    "Make C++ snippets available in simpc buffers visiting C++ files."
+    (when (member (file-name-extension (or buffer-file-name ""))
+                  '("cc" "cp" "cpp" "cxx" "c++" "C" "hh" "hpp"
+                    "hxx" "h++" "cppm" "ixx" "inl" "ipp"))
+      (yas-activate-extra-mode 'c++-mode)))
+  (yas-global-mode 1))
 
 (use-package yasnippet-snippets
-  :hook (simpc-mode . (lambda () (yas-activate-extra-mode 'c++-mode))))
+  :after yasnippet
+  :demand t)
 
 (use-package yasnippet-capf
   :hook (yas-minor-mode . my-corfu-add-yasnippet-capf-h)

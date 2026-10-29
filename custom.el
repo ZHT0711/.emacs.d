@@ -4,7 +4,7 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(custom-enabled-themes '(nn-world))
+ '(custom-enabled-themes '(catppuccin))
  '(custom-safe-themes
    '("ba7a962aa47583f4b01adbd47bd4bc1ff84fa6873ca2a787683a529442478d42"
      "1d4776bb44b51cd7cbb00fa4bebaf4e0286f93a4725c2deef5a6ac50f24b772a"
@@ -60,12 +60,12 @@
      "49dbae342db4a16048dc27350e0bd24b135b8c7ec72c5a4f104bad3a61f38e12" default))
  '(org-fold-catch-invisible-edits 'show-and-error nil nil "Customized with use-package org")
  '(package-selected-packages
-   '(apheleia calfw-org calibredb citre color-picker colorful-mode consult corfu
-     dape elfeed emmet-mode evil ghostel gt imenu-list indent-bars magit
-     markdown-mode material-icon minibuffer-frame multiple-cursors
-     nerd-icons-corfu no-littering nov olivetti org-modern powershell
+   '(apheleia calfw-org calibredb catppuccin-theme citre color-picker colorful-mode conda consult
+     corfu dape elfeed emmet-mode evil expand-region ghostel gt imenu-list indent-bars magit
+     marginalia markdown-mode material-icon meow minibuffer-frame multiple-cursors
+     nerd-icons-corfu no-littering nov olivetti orderless org-modern powershell quickrun
      rainbow-delimiters rg savefold shr-tag-pre-highlight shrface symbol-overlay
-     telega vundo wallabag web-mode yasnippet-capf yasnippet-snippets))
+     telega vertico vundo wallabag web-mode yasnippet-capf yasnippet-snippets))
  '(package-vc-selected-packages
    '((color-picker :url "https://github.com/zHaOdANiuu/color-picker.el")))
  '(safe-local-variable-values
@@ -84,134 +84,3 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  )
-
-;; 开启 delete-selection-mode：输入字符会替换选中区域
-(delete-selection-mode 1)
-
-;;在标题栏显示路径~
-(setq frame-title-format
-      '((:eval (if (buffer-file-name)
-                   (abbreviate-file-name (buffer-file-name))
-                 "%b"))))
-
-;;This is a little shortcut for me to open the file
-(defun my-smart-find-file ()
-  "有选区时用选区内容打开文件，否则使用 `find-file-at-point'。"
-  (interactive)
-  (if (use-region-p)
-      (let ((file (buffer-substring-no-properties
-                   (region-beginning) (region-end))))
-        (find-file file))
-    (call-interactively 'find-file-at-point)))
-(global-set-key (kbd "C-x C-f") 'my-smart-find-file)
-
-;;using C-c e to add cursor
-(global-set-key (kbd "C-c e") 'mc/edit-lines)
-
-;; 设置为相对行号模式
-(setq display-line-numbers-type 'relative)
-
-;; 让当前行显示绝对行号（而不是0）
-(setq display-line-numbers-current-absolute t)
-
-;; ============================================================
-;;  C-;  : 切换 // 行注释（逐行）
-;;  M-;  : 切换 /* */ 块注释（无星号）
-;; ============================================================
-
-
-
-(defun my-c++-comment-star ()
-  "切换 /* */ 块注释（无星号）。已注释则取消，否则添加。"
-  (interactive)
-  (if (use-region-p)
-      (let* ((beg (region-beginning))
-             (end (region-end))
-             ;; 只计算一次非空首尾位置
-             (first (save-excursion
-                      (goto-char beg)
-                      (skip-chars-forward " \t\n")
-                      (point)))
-             (last  (save-excursion
-                      (goto-char end)
-                      (skip-chars-backward " \t\n")
-                      (point))))
-        ;; 用字符比较检测是否已被 /* 和 */ 包裹
-        (if (and (>= (- last first) 4)       ; 至少 /*x*/ 的长度
-                 (eql (char-after first) ?/)
-                 (eql (char-after (1+ first)) ?*)
-                 (eql (char-after (- last 2)) ?*)
-                 (eql (char-after (1- last)) ?/))
-            ;; 已注释 -> 取消
-            (progn
-              (goto-char last)
-              (delete-region (- last 2) last)  ; 删除 */
-              (goto-char first)
-              ;; 删除头部的 /* 或 /*
-              (if (eql (char-after (+ first 2)) ?\s)
-                  (delete-region first (+ first 3))
-                (delete-region first (+ first 2))))
-          ;; 未注释 -> 添加
-          (progn
-            (goto-char end)
-            (insert " */")
-            (goto-char beg)
-            (insert "/* "))))
-    ;; 没有选中区域：插入空块
-    (insert "/*  */")
-    (backward-char 3)))
-
-(defun my-c/c++-mode-common-setup ()
-  (local-set-key (kbd "C-;") 'comment-dwim)
-  (local-set-key (kbd "M-;") 'my-c++-comment-star))
-
-(add-hook 'c++-mode-hook 'my-c/c++-mode-common-setup)
-(add-hook 'simpc-mode-hook 'my-c/c++-mode-common-setup)
-
-;; 使用 Ctrl+Shift+鼠标左键 来添加或移除光标
-(global-set-key (kbd "C-S-<mouse-1>") 'mc/add-cursor-on-click)
-
-(require 'multiple-cursors)
-(defun mc/toggle-cursor-at-point ()
-  "在光标位置添加或移除一个光标。"
-  (interactive)
-  (if multiple-cursors-mode
-      (message "Cannot toggle cursor at point while `multiple-cursors-mode' is active.")
-    (let ((existing (mc/fake-cursor-at-point)))
-      (if existing
-          (mc/remove-fake-cursor existing)
-        (mc/create-fake-cursor-at-point)))))
-(add-to-list 'mc/cmds-to-run-once 'mc/toggle-cursor-at-point)
-(global-set-key (kbd "C-M-<") 'mc/toggle-cursor-at-point) ; 绑定到 Ctrl+Shift+,+Alt
-
-;;C-x C-/使用vundo
-(use-package vundo
-  :bind ("C-x C-/" . vundo))
-
-
-
-;; === local preference: cursor stays still 6s, blinks only after 6s idle ===
-(defvar my/blink-delay-seconds 6
-  "连续无操作多少秒后,光标才开始闪烁。")
-
-(defvar my/blink-idle-timer nil)
-
-(defun my/blink-stop ()
-  "输入后:让光标实心不闪,并重新开始 6 秒倒计时。"
-  (when my/blink-idle-timer
-    (cancel-timer my/blink-idle-timer))
-  (when blink-cursor-mode
-    (blink-cursor-mode -1))
-  (setq my/blink-idle-timer
-        (run-with-idle-timer my/blink-delay-seconds nil #'my/blink-start)))
-
-(defun my/blink-start ()
-  "空闲满 6 秒:开始让光标闪烁。"
-  (unless blink-cursor-mode
-    (blink-cursor-mode 1)))
-
-;; 每执行一个命令(按键、移动光标等)都会重置倒计时
-(add-hook 'post-command-hook #'my/blink-stop)
-;; 启动时立即初始化,避免刚启动的头 6 秒内光标在闪
-(my/blink-stop)
-;; === end cursor-blink delay ===

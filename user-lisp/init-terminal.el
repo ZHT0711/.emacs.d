@@ -163,4 +163,12 @@ Like normal Emacs `C-k'.  Kill to end of line and put content in kill-ring."
                  (display-buffer-below-selected)
                  (window-height . 0.35))))
 
+;; `powershell' (the elpa package) simply calls `shell', which opens
+;; *PowerShell* through `pop-to-buffer'; keep it a modest window below
+;; the selected one instead of letting it take over the frame.
+(add-to-list 'display-buffer-alist
+             '("\\*PowerShell\\*"
+               (display-buffer-below-selected)
+               (window-height . 0.3)))
+
 (provide 'init-terminal)

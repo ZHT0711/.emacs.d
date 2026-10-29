@@ -9,3 +9,7 @@ custom.el
 var/
 tutorial/
 tramp
+
+*.elc
+#*#
+etc/

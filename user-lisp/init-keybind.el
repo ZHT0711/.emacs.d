@@ -129,4 +129,15 @@
 ;; C-z 保持默认的 suspend-frame(挂起)
 (keymap-global-set "C-S-z" #'undo-redo)
 
+(use-package which-key
+  :ensure nil
+  :demand t
+  :custom (which-key-idle-delay 0.6)
+  :config
+  (which-key-add-key-based-replacements
+    "C-c b" "build/run"
+    "C-c t" "translate"
+    "C-c y" "insert snippet")
+  (which-key-mode 1))
+
 (provide 'init-keybind)
