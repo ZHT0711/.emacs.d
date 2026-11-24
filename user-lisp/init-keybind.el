@@ -96,10 +96,32 @@
   (interactive "sReplace: \nsWith: ")
   (replace-string from to nil (point-min) (point-max)))
 
+(defun my-tabify-region-or-buffer ()
+  "Convert aligned spaces to tabs in the active region or accessible buffer.
+Use the current `tab-width'; whitespace inside strings is included."
+  (interactive "*")
+  (atomic-change-group
+    (save-excursion
+      (if (use-region-p)
+          (tabify (region-beginning) (region-end))
+        (tabify (point-min) (point-max))))))
+
+(defun my-untabify-region-or-buffer ()
+  "Expand tabs in the active region or accessible buffer into spaces.
+Use the current `tab-width'; whitespace inside strings is included."
+  (interactive "*")
+  (atomic-change-group
+    (save-excursion
+      (if (use-region-p)
+          (untabify (region-beginning) (region-end))
+        (untabify (point-min) (point-max))))))
+
 (keymap-global-set "C-!" #'my-replace-string-whole-buffer)
 (keymap-global-set "C-c w p" #'my-surround-replace-pair)
 (keymap-global-set "C-c w r" #'my-surround-replace)
 (keymap-global-set "C-c w w" #'my-surround-word)
+(keymap-global-set "C-c w t" #'my-tabify-region-or-buffer)
+(keymap-global-set "C-c w s" #'my-untabify-region-or-buffer)
 (keymap-global-set "C-c C-r" #'my-switch-to-project-root)
 (keymap-global-set "M-l" #'my-downcase-dwim)
 (keymap-global-set "M-u" #'my-upcase-dwim)
@@ -137,6 +159,9 @@
   (which-key-add-key-based-replacements
     "C-c b" "build/run"
     "C-c t" "translate"
+    "C-c w" "text/whitespace"
+    "C-c w t" "spaces -> tabs"
+    "C-c w s" "tabs -> spaces"
     "C-c y" "insert snippet")
   (which-key-mode 1))
 

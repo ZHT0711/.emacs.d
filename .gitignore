@@ -13,3 +13,7 @@ tramp
 *.elc
 #*#
 etc/
+
+# Local backups and feed database (never publish)
+/backups/
+/elfeed/

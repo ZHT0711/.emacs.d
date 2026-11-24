@@ -138,8 +138,8 @@
   (setq-local font-lock-defaults '(simpc-font-lock-keywords))
   (setq-local indent-line-function #'simpc-indent-line)
   (setq-local comment-start "// ")
-  ;; Keep existing tabs visible to indent-bars and insert literal tabs with TAB.
-  (setq-local indent-tabs-mode t)
+  ;; Use spaces consistently with completion and formatter indentation.
+  (setq-local indent-tabs-mode nil)
   (setq-local tab-width simpc-indent-width))
 
 (provide 'simpc-mode)

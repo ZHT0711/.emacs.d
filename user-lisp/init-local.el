@@ -30,8 +30,9 @@
 (setq display-line-numbers-current-absolute t)
 
 ;; ============================================================
-;;  C-;  : 切换 // 行注释（逐行）
-;;  M-;  : 切换 /* */ 块注释（无星号）
+;;  C-;  : 按当前语言切换行或选区注释
+;;  C-M-;: 在当前行末添加说明注释
+;;  M-;  : C++ / simpc 中切换 /* */ 块注释（无星号）
 ;; ============================================================
 
 
@@ -76,8 +77,41 @@
     (insert "/*  */")
     (backward-char 3)))
 
+(defun my-comment-line-or-region (arg)
+  "切换选区或当前行的注释，并将前缀参数 ARG 传给注释命令。"
+  (interactive "*P")
+  (if (use-region-p)
+      (comment-dwim arg)
+    (comment-or-uncomment-region (line-beginning-position)
+                                (line-end-position) arg)))
+
+(defun my-web-comment-at-line-end ()
+  "按 web-mode 当前语言在行末添加说明注释，或进入已有注释。"
+  (interactive "*")
+  (deactivate-mark)
+  (web-mode-scan)
+  (end-of-line)
+  (let ((context (web-mode-comment-context)))
+    (if context
+        (progn
+          (goto-char (plist-get context :beg))
+          (forward-char (length (or (plist-get context :prefix) comment-start)))
+          (skip-chars-forward " \t" (line-end-position)))
+      (unless (bolp) (insert " "))
+      (web-mode-comment-insert))))
+
+(defun my-comment-keybindings-setup ()
+  "按当前主模式的注释语法绑定注释快捷键。"
+  (local-set-key (kbd "C-;") 'my-comment-line-or-region)
+  (local-set-key (kbd "C-M-;")
+                 (if (derived-mode-p 'web-mode)
+                     #'my-web-comment-at-line-end
+                   #'comment-indent)))
+
+(dolist (hook '(prog-mode-hook conf-mode-hook text-mode-hook))
+  (add-hook hook #'my-comment-keybindings-setup))
+
 (defun my-c/c++-mode-common-setup ()
-  (local-set-key (kbd "C-;") 'comment-dwim)
   (local-set-key (kbd "M-;") 'my-c++-comment-star))
 
 (add-hook 'c++-mode-hook 'my-c/c++-mode-common-setup)
@@ -164,3 +198,19 @@
 
 (provide 'init-local)
 ;;; init-local.el ends here
+
+(defun my/dired-auto-hide-details (&rest _)
+  (dolist (win (window-list))
+    (with-current-buffer (window-buffer win)
+      (when (derived-mode-p 'dired-mode)
+        (let ((hide (window-combined-p win t)))
+          (unless (eq dired-hide-details-mode hide)
+            (dired-hide-details-mode (if hide 1 -1))))))))
+
+;; 窗口布局变化时自动调整
+(add-hook 'window-configuration-change-hook
+          #'my/dired-auto-hide-details)
+
+;; 窗口切换缓冲区时自动调整
+(add-hook 'window-buffer-change-functions
+          #'my/dired-auto-hide-details)

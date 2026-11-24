@@ -37,8 +37,11 @@
 
   (let ((default-file-name-handler-alist file-name-handler-alist)
         (default-load-file-rep-suffixes load-file-rep-suffixes))
+    ;; Keep dynamic modules discoverable (.dll on Windows).
     (setq file-name-handler-alist nil
-          load-suffixes '(".elc" ".el")
+          load-suffixes (append '(".elc" ".el")
+                               (when module-file-suffix
+                                 (list module-file-suffix)))
           load-file-rep-suffixes '(""))
     (add-hook 'emacs-startup-hook
               (lambda ()

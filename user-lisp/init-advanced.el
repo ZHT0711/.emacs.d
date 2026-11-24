@@ -171,9 +171,11 @@
   :ensure nil
   :bind
   (("C-|" . speedbar-window)
+   ("M-o" . speedbar-get-focus)
    :map speedbar-mode-map
    ("q" . delete-window))
   :custom
+  (speedbar-prefer-window t)
   (speedbar-window-side 'right)
   (speedbar-window-default-width 30)
   (speedbar-vc-do-check t)

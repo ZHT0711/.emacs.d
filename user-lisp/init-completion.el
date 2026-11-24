@@ -204,7 +204,9 @@
   :hook
   (prog-mode . yas-minor-mode)
   (simpc-mode . my-yas-enable-cxx-snippets)
-  :bind (:map yas-minor-mode-map ("C-c y" . yas-insert-snippet))
+  :bind (:map yas-minor-mode-map
+         ("C-c y" . yas-insert-snippet)
+         ("C-c TAB" . yas-expand))
   :commands
   (yas-minor-mode-on
    yas-expand
@@ -223,10 +225,14 @@
   :config
   (defun my-yas-enable-cxx-snippets ()
     "Make C++ snippets available in simpc buffers visiting C++ files."
-    (when (member (file-name-extension (or buffer-file-name ""))
-                  '("cc" "cp" "cpp" "cxx" "c++" "C" "hh" "hpp"
-                    "hxx" "h++" "cppm" "ixx" "inl" "ipp"))
-      (yas-activate-extra-mode 'c++-mode)))
+    (let ((extension (file-name-extension (or buffer-file-name ""))))
+      (cond
+       ((member extension '("c" "h"))
+        (yas-activate-extra-mode 'c-mode))
+       ((member extension '("cc" "cp" "cpp" "cxx" "c++" "C"
+                            "hh" "hpp" "hxx" "h++" "cppm" "ixx"
+                            "inl" "ipp"))
+        (yas-activate-extra-mode 'c++-mode)))))
   (yas-global-mode 1))
 
 (use-package yasnippet-snippets

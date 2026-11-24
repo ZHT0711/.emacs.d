@@ -94,7 +94,7 @@
   (remove-hook 'dape-start-hook #'dape-repl)
   (add-to-list 'dape-configs
                '(gdb-attach
-                 modes (c-mode c-ts-mode c++-mode c++-ts-mode)
+                 modes (c-mode c-ts-mode c++-mode c++-ts-mode simpc-mode)
                  command "gdb"
                  command-args ("--interpreter=dap")
                  :request "attach"

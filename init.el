@@ -46,6 +46,7 @@
   (require 'init-mode-line)
   (require 'init-terminal)
   (require 'init-keybind)
+  (require 'init-oj-assistant)
   (require 'init-rime)
   (require 'init-word-move)
   (require 'init-context-menu)

@@ -36,7 +36,7 @@
    '((error "" compilation-error)
      (warning "" compilation-warning)
      (note "" compilation-info)))
-  (flymake-show-diagnostics-at-end-of-line t)
+  (flymake-show-diagnostics-at-end-of-line 'short)
   :config
   (setq-default next-error-find-buffer-function #'next-error-buffer-unnavigated-current)
 

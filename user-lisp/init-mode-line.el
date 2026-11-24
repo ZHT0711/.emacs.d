@@ -6,6 +6,39 @@
 
 (setq-default mode-line-format nil)
 
+(defvar nn-mode-line-padding 4
+  "Vertical padding, in pixels, inside graphical mode lines.")
+
+(defun nn-mode-line-apply-appearance (&optional frame)
+  "Give graphical FRAME a flat, theme-matched mode line."
+  (let ((frame (or frame (selected-frame))))
+    (when (and (display-graphic-p frame) (not (frame-parent frame)))
+      (let ((background (face-background 'default frame t))
+            (foreground (face-foreground 'default frame t))
+            (muted (face-foreground 'shadow frame t)))
+        (dolist (face '(mode-line mode-line-active mode-line-inactive))
+          (set-face-attribute
+           face frame
+           :background background
+           :foreground (if (eq face 'mode-line-inactive) muted foreground)
+           :box `(:line-width (,nn-mode-line-padding . 1) :color ,background)
+           :overline nil :underline nil :inverse-video nil :weight 'normal))))))
+
+(defun nn-mode-line-refresh-appearance (&rest _)
+  "Refresh mode-line colors after a theme change."
+  (dolist (frame (frame-list))
+    (nn-mode-line-apply-appearance frame)))
+
+(add-hook 'after-make-frame-functions #'nn-mode-line-apply-appearance)
+(add-hook 'enable-theme-functions #'nn-mode-line-refresh-appearance)
+(add-hook 'disable-theme-functions #'nn-mode-line-refresh-appearance)
+(nn-mode-line-refresh-appearance)
+
+(defun nn-mode-line--segment (text &optional face)
+  "Add spacing before nonempty TEXT, optionally using FACE."
+  (when (and (stringp text) (not (string-empty-p text)))
+    (concat "  " (if face (propertize text 'face face) text))))
+
 (defvar nn-mode-line--prog-modes-cache nil)
 (defvar-local nn-mode-line--vc-cache nil)
 (defvar-local nn-mode-line--eglot-cache nil)
@@ -140,17 +173,17 @@
 
 (defconst nn-mode-line-format
   '("%e"
-    "  " (:eval (nn-viper-mode-format))
-    "  " (:eval (nn-mode-line-vc-format))
-    "  " "%b"
-    "  " (:eval (nn-mode-line-flymake-format))
-    "  " (:eval (nn-mode-line-eglot-format))
+    "  " (:propertize "%b" face (:weight semi-bold))
+    (:eval (nn-mode-line--segment (nn-viper-mode-format)))
+    (:eval (nn-mode-line--segment (nn-mode-line-vc-format)))
+    (:eval (nn-mode-line--segment (nn-mode-line-flymake-format)))
+    (:eval (nn-mode-line--segment (nn-mode-line-eglot-format) 'shadow))
     "  " mode-line-misc-info
     mode-line-format-right-align
-    "  " (:eval (nn-mode-line-position-format))
-    "  " (:eval (nn-mode-line-encoding-format))
-    "  " (:eval (if current-input-method "C" "A"))
-    "  " (:eval (nn-mode-line-mode-format))
+    (:eval (nn-mode-line--segment (nn-mode-line-position-format)))
+    (:eval (nn-mode-line--segment (nn-mode-line-encoding-format) 'shadow))
+    (:eval (nn-mode-line--segment (if current-input-method "C" "A") 'shadow))
+    (:eval (nn-mode-line--segment (nn-mode-line-mode-format) 'shadow))
     "  "))
 
 (dolist (hook '(prog-mode-hook text-mode-hook conf-mode-hook dired-mode-hook))

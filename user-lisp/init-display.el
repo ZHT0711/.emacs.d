@@ -1,4 +1,21 @@
 ;;; -*- lexical-binding: t -*-
+
+(defvar nn-display-frame-padding 10
+  "Outer padding, in pixels, for graphical top-level frames.")
+(defvar nn-display-line-spacing 2
+  "Extra space, in pixels, between text lines in graphical Emacs.")
+
+(defun nn-display-apply-padding (&optional frame)
+  "Apply modest whitespace to graphical FRAME, leaving child borders alone."
+  (let ((frame (or frame (selected-frame))))
+    (when (and (display-graphic-p frame) (not (frame-parent frame)))
+      (setq-default line-spacing nn-display-line-spacing)
+      (set-frame-parameter frame 'internal-border-width nn-display-frame-padding))))
+
+(add-hook 'after-make-frame-functions #'nn-display-apply-padding)
+(dolist (frame (frame-list))
+  (nn-display-apply-padding frame))
+
 (use-package fringe
   :ensure nil
   :custom
@@ -41,7 +58,23 @@
   :custom
   (display-line-numbers-grow-only t)
   (display-line-numbers-width 3)
-  (display-line-numbers-widen t))
+  (display-line-numbers-widen t)
+  :config
+  (defun nn-display-apply-line-number-background (&rest _)
+    "Highlight only the current line number, without changing its text color."
+    (let ((background
+           (if (and (memq 'catppuccin custom-enabled-themes)
+                    (fboundp 'catppuccin-color))
+               (catppuccin-color 'surface0)
+             (face-background 'highlight nil t))))
+      (set-face-attribute 'line-number-current-line nil
+                          :background (if (and (stringp background)
+                                               (color-defined-p background))
+                                          background
+                                        'unspecified))))
+  (add-hook 'enable-theme-functions #'nn-display-apply-line-number-background)
+  (add-hook 'disable-theme-functions #'nn-display-apply-line-number-background)
+  (nn-display-apply-line-number-background))
 
 (use-package paren
   :ensure nil

@@ -202,18 +202,19 @@
    ("C-<" . mc/mark-previous-like-this)
    ("C-c C-<" . mc/mark-all-like-this)
    ("C-M->" . mc/skip-to-next-like-this)
-   ("C-M-<" . mc/skip-to-previous-like-this)
+   ("C-M-<" . mc/toggle-cursor-at-point)
    :map mc/keymap
    ("M-S-w" . my-mc/copy)
    ("C-S-w" . my-mc/cat)
-   ("C-;" . mc/vertical-align-with-space)
+   ("C-;" . my-comment-line-or-region)
    ("<escape>" . multiple-cursors-mode))
-  :init (multiple-cursors-mode t)
   :custom
   (mc/always-run-for-all t)
   (mc/list-file (concat nn-directory ".mc-lists.el"))
   :config
   (add-to-list 'mc--default-cmds-to-run-once #'swiper-mc)
+  (add-to-list 'mc--default-cmds-to-run-once #'mc/mark-next-lines)
+  (add-to-list 'mc--default-cmds-to-run-once #'mc/mark-previous-lines)
 
   (defun my-mc/get-line-with-indent (beg end)
     (save-excursion
