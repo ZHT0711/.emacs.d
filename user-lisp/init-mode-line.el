@@ -149,14 +149,23 @@
        (when (commandp mode)
          (funcall mode))))))
 
-(defun nn-viper-mode-format ()
-  (when (bound-and-true-p viper-mode)
-    (if mark-active "VISUAL"
-      (pcase viper-current-state
-        ('vi-state      "NORMAL")
-        ('insert-state  "INSERT")
-        ('replace-state "REPLACE")
-        ('emacs-state   "EMACS")))))
+(defun nn-mode-line-evil-format ()
+  "Return a theme-colored label for the current buffer's Evil state."
+  (when (and (bound-and-true-p evil-local-mode)
+             (bound-and-true-p evil-state))
+    (let* ((state (pcase evil-state
+                    ('normal '("NORMAL" blue font-lock-function-name-face))
+                    ('insert '("INSERT" green font-lock-string-face))
+                    ('visual '("VISUAL" mauve font-lock-keyword-face))
+                    (_ (list (upcase (symbol-name evil-state))
+                             'overlay1 'shadow))))
+           (color (if (and (memq 'catppuccin custom-enabled-themes)
+                           (fboundp 'catppuccin-color))
+                      (catppuccin-color (nth 1 state))
+                    (face-foreground (nth 2 state) nil t))))
+      (propertize (car state)
+                  'face `(:foreground ,color :weight bold)
+                  'help-echo "Current Evil state"))))
 
 (define-advice vc-refresh-state (:after (&rest _) reset-nn-vc-cache)
   (setq nn-mode-line--vc-cache nil))
@@ -173,8 +182,7 @@
 
 (defconst nn-mode-line-format
   '("%e"
-    "  " (:propertize "%b" face (:weight semi-bold))
-    (:eval (nn-mode-line--segment (nn-viper-mode-format)))
+    (:eval (nn-mode-line--segment (nn-mode-line-evil-format)))
     (:eval (nn-mode-line--segment (nn-mode-line-vc-format)))
     (:eval (nn-mode-line--segment (nn-mode-line-flymake-format)))
     (:eval (nn-mode-line--segment (nn-mode-line-eglot-format) 'shadow))

@@ -252,6 +252,14 @@
       (mc/keyboard-quit)
       (multiple-cursors-mode -1))))
 
+(use-package evil
+  :ensure t
+  :demand t
+  :custom
+  (evil-undo-system 'undo-redo)
+  :config
+  (evil-mode 1))
+
 (use-package viper
   :ensure nil
   :if nn-vim-mode
